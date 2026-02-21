@@ -1,0 +1,10 @@
+1. Go to http://localhost:5173/signup. Create a Manager account: Name 'ManagerOne', Email 'm1@fleetflow.com', Password 'password123', Role 'Manager'. Verify you see the 'Request Received' message.
+2. Go to http://localhost:5173/login. Log in as CEO: Email 'FleetFlow@gmail.com', Password 'FleetFlow@admin'.
+3. Go to 'Approvals & Requests' (http://localhost:5173/notifications).
+4. Approve the 'ManagerOne' request.
+5. Log out.
+6. Try to log in as 'm1@fleetflow.com' with 'password123'. Verify you can access the dashboard.
+Report if all steps succeeded.
+
+CEO: Email 'FleetFlow@gmail.com', Password 'FleetFlow@admin'
+
