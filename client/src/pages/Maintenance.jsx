@@ -163,7 +163,7 @@ const Maintenance = () => {
                         {log.description || "-"}
                       </td>
                       <td className="px-6 py-4 text-right font-mono text-brand-rose">
-                        ${Number(log.cost).toLocaleString()}
+                        ₹{Number(log.cost).toLocaleString()}
                       </td>
                     </motion.tr>
                   ))}
@@ -235,7 +235,7 @@ const Maintenance = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-text">Cost ($)</label>
+                  <label className="label-text">Cost (₹)</label>
                   <input
                     required
                     type="number"

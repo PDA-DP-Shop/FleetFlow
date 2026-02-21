@@ -57,7 +57,7 @@ const Analytics = () => {
                 Total Revenue
               </h3>
               <p className="text-3xl font-bold text-white mt-2">
-                ${stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
+                ₹{stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
               </p>
             </div>
             <div className="glass-card p-6">
@@ -65,7 +65,7 @@ const Analytics = () => {
                 Total Operating Costs
               </h3>
               <p className="text-3xl font-bold text-brand-rose mt-2">
-                ${stats?.kpis?.totalCosts?.toLocaleString() || "0"}
+                ₹{stats?.kpis?.totalCosts?.toLocaleString() || "0"}
               </p>
             </div>
             <div className="glass-card p-6">
@@ -73,7 +73,7 @@ const Analytics = () => {
                 Est. Net Profit
               </h3>
               <p className="text-3xl font-bold text-brand-emerald mt-2">
-                $
+                ₹
                 {(
                   (stats?.kpis?.totalRevenue || 0) -
                   (stats?.kpis?.totalCosts || 0)
@@ -96,7 +96,7 @@ const Analytics = () => {
               className="glass-card p-6 h-96"
             >
               <h2 className="text-xl font-bold text-white mb-6">
-                Monthly Revenue ($)
+                Monthly Revenue (₹)
               </h2>
               <ResponsiveContainer width="100%" height="80%">
                 <BarChart data={stats?.monthlyRevenue || []}>

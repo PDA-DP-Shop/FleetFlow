@@ -21,8 +21,13 @@ const Sidebar = () => {
       roles: ["CEO", "Manager"],
     },
     {
+      path: "/drivers",
+      label: "Driver Staff",
+      roles: ["CEO", "Manager", "Safety Officer"],
+    },
+    {
       path: "/vehicles",
-      label: "Fleet Registry",
+      label: "Vehicles Registry",
       roles: ["CEO", "Manager", "Dispatcher"],
     },
     {
@@ -34,11 +39,6 @@ const Sidebar = () => {
       path: "/maintenance",
       label: "Maintenance Logs",
       roles: ["CEO", "Manager", "Dispatcher"],
-    },
-    {
-      path: "/drivers",
-      label: "Driver Staff",
-      roles: ["CEO", "Manager", "Safety Officer"],
     },
     {
       path: "/finance",
@@ -60,7 +60,6 @@ const Sidebar = () => {
     <aside className="w-64 h-screen glass-card rounded-none border-y-0 border-l-0 hidden md:flex flex-col sticky top-0">
       <div className="p-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <img src="/logo/logo-1.jpeg" alt="Logo" className="w-10 h-10 rounded-lg object-cover" />
           <h2 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-brand-indigo to-brand-emerald">
             FleetFlow
           </h2>

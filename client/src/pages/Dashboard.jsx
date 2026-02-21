@@ -125,7 +125,7 @@ const Dashboard = () => {
         >
           <h3 className="text-slate-400 text-sm font-medium">Total Revenue</h3>
           <p className="text-3xl font-bold text-white mt-2">
-            ${stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
+            ₹{stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
           </p>
           <div className="mt-2 text-xs text-brand-indigo">
             Completed trips only
@@ -211,7 +211,7 @@ const Dashboard = () => {
                   </div>
                   <div className="text-xs text-slate-400 flex justify-between mt-2">
                     <span>Vehicle: {trip.license_plate}</span>
-                    <span>${trip.estimated_revenue}</span>
+                    <span>₹{trip.estimated_revenue}</span>
                   </div>
                 </div>
               ))

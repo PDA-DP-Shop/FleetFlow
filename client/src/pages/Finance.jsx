@@ -120,13 +120,13 @@ const Finance = () => {
                         {log.liters} L
                       </td>
                       <td className="px-6 py-4 text-right font-mono text-brand-rose/80">
-                        ${log.fuel_cost}
+                        ₹{log.fuel_cost}
                       </td>
                       <td className="px-6 py-4 text-right font-mono text-brand-amber/80">
-                        ${log.misc_expense}
+                        ₹{log.misc_expense}
                       </td>
                       <td className="px-6 py-4 text-right font-mono font-bold text-brand-rose">
-                        ${total.toFixed(2)}
+                        ₹{total.toFixed(2)}
                       </td>
                     </motion.tr>
                   );
@@ -188,7 +188,7 @@ const Finance = () => {
                   />
                 </div>
                 <div>
-                  <label className="label-text">Fuel Cost ($)</label>
+                  <label className="label-text">Fuel Cost (₹)</label>
                   <input
                     required
                     type="number"
@@ -204,7 +204,7 @@ const Finance = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="label-text">Misc Expense ($)</label>
+                  <label className="label-text">Misc Expense (₹)</label>
                   <input
                     type="number"
                     step="0.01"

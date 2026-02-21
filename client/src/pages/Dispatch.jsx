@@ -186,7 +186,7 @@ const Dispatch = () => {
                   />
                 </div>
                 <div>
-                  <label className="label-text">Est. Revenue ($)</label>
+                  <label className="label-text">Est. Revenue (₹)</label>
                   <input
                     required
                     type="number"

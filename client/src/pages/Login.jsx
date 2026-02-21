@@ -34,7 +34,7 @@ const Login = () => {
         className="glass-card w-full max-w-md p-8 relative z-10"
       >
         <div className="text-center mb-8">
-          <img src="/logo/logo-2.png" alt="FleetFlow Logo" className="w-24 h-24 mx-auto mb-4 object-contain" />
+          <img src="/logo/logo-1.png" alt="FleetFlow Logo" className="w-24 h-24 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-brand-indigo to-brand-emerald">
             FleetFlow
           </h1>
