@@ -5,6 +5,6 @@ const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 router.use(authenticateToken);
 
-router.get('/', authorizeRole('Manager', 'Finance'), getAnalytics);
+router.get('/', authorizeRole('Manager', 'Finance', 'CEO'), getAnalytics);
 
 module.exports = router;
