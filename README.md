@@ -67,6 +67,3 @@ npm run dev
 
 The system supports professional PDF exporting. Click the **"Export PDF"** button on any dashboard to generate clean, A4-optimized reports for stakeholder meetings or record-keeping.
 
----
-
-_Built for Advanced Agentic Coding by Antigravity_
