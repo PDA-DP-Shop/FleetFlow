@@ -53,25 +53,11 @@ const Signup = () => {
         className="glass-card w-full max-w-md p-8 relative z-10"
       >
         <div className="text-center mb-8">
-          <div className="mx-auto bg-brand-indigo/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-4 border border-brand-indigo/30">
-            <svg
-              className="w-8 h-8 text-brand-indigo"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              ></path>
-            </svg>
-          </div>
+          <img src="/logo/logo-2.png" alt="FleetFlow Logo" className="w-20 h-20 mx-auto mb-4 object-contain" />
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-brand-indigo to-brand-emerald">
             FleetFlow
           </h1>
-          <p className="text-slate-400 mt-2">Intelligent Fleet Management</p>
+          <p className="text-slate-400 mt-2 text-sm uppercase tracking-widest font-semibold">Logistics Management System</p>
         </div>
 
         {error && (

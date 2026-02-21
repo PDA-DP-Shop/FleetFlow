@@ -8,3 +8,10 @@ Report if all steps succeeded.
 
 CEO: Email 'FleetFlow@gmail.com', Password 'FleetFlow@admin'
 
+client run  : 
+cd client
+lsof -i :5173 || true && export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && npm run dev
+
+Server run : 
+cd server
+lsof -t -i :5000 | xargs kill -9 || true && export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && npm run dev
