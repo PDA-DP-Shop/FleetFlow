@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 
 const Vehicles = () => {
+  const { user } = useAuth();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -58,6 +60,17 @@ const Vehicles = () => {
       fetchVehicles();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to remove this vehicle?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/vehicles/${id}`);
+        fetchVehicles();
+      } catch (err) {
+        alert("Failed to delete vehicle");
+      }
     }
   };
 
@@ -156,13 +169,24 @@ const Vehicles = () => {
                         {v.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right flex justify-end items-center gap-3">
                       {v.status !== "On Trip" && v.status !== "In Shop" && (
                         <button
                           onClick={() => toggleStatus(v.id, v.status)}
                           className="text-xs hover:text-white text-slate-400 underline transition-colors"
                         >
                           Toggle Out of Service
+                        </button>
+                      )}
+                      {(user?.role === "Manager" || user?.role === "CEO") && (
+                        <button
+                          onClick={() => handleDelete(v.id)}
+                          className="text-brand-rose hover:text-red-400 transition-colors p-1"
+                          title="Remove Vehicle"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
                       )}
                     </td>

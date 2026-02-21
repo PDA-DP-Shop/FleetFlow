@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 
 const Drivers = () => {
+  const { user } = useAuth();
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -26,6 +28,31 @@ const Drivers = () => {
   useEffect(() => {
     fetchDrivers();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to remove this driver?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/drivers/${id}`);
+        fetchDrivers();
+      } catch (err) {
+        alert("Failed to delete driver");
+      }
+    }
+  };
+
+  const handleSuspend = async (id, currentStatus) => {
+    const newStatus = currentStatus === "Suspended" ? "Off Duty" : "Suspended";
+    const driver = drivers.find((d) => d.id === id);
+    try {
+      await axios.put(`http://localhost:5000/api/drivers/${id}`, {
+        ...driver,
+        status: newStatus,
+      });
+      fetchDrivers();
+    } catch (err) {
+      alert("Failed to update status");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -137,7 +164,7 @@ const Drivers = () => {
                       <td className="px-6 py-4">{d.license_number}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`status-pill ${d.status === "On Duty" ? "status-available" : d.status === "On Trip" ? "status-trip" : "status-out"}`}
+                          className={`status-pill ${d.status === "On Duty" ? "status-available" : d.status === "On Trip" ? "status-trip" : d.status === "Suspended" ? "status-suspended" : "status-out"}`}
                         >
                           {d.status}
                         </span>
@@ -165,15 +192,44 @@ const Drivers = () => {
                           <span>{d.safety_score}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        {(d.status === "On Duty" ||
-                          d.status === "Off Duty") && (
+                      <td className="px-6 py-4 text-right flex justify-end items-center gap-3">
+                        {(d.status === "On Duty" || d.status === "Off Duty") && (
                           <button
                             onClick={() => toggleStatus(d.id, d.status)}
                             className="text-xs hover:text-white text-slate-400 underline transition-colors"
                           >
                             Toggle Duty
                           </button>
+                        )}
+                        {(user?.role === "Manager" || user?.role === "CEO") && (
+                          <div className="flex items-center gap-2">
+                             {d.status !== "On Trip" && (
+                              <button
+                                onClick={() => handleSuspend(d.id, d.status)}
+                                className={`${d.status === "Suspended" ? "text-brand-emerald" : "text-brand-amber"} hover:opacity-80 transition-opacity p-1`}
+                                title={d.status === "Suspended" ? "Reinstate Driver" : "Suspend Driver"}
+                              >
+                                {d.status === "Suspended" ? (
+                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                   </svg>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                  </svg>
+                                )}
+                              </button>
+                             )}
+                            <button
+                              onClick={() => handleDelete(d.id)}
+                              className="text-brand-rose hover:text-red-400 transition-colors p-1"
+                              title="Remove Driver"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         )}
                       </td>
                     </motion.tr>

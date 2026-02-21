@@ -41,6 +41,10 @@
     @apply bg-brand-rose/20 text-brand-rose border border-brand-rose/30;
   }
 
+  .status-suspended {
+    @apply bg-brand-amber/20 text-brand-amber border border-brand-amber/30;
+  }
+
   .btn-primary {
     @apply bg-brand-indigo hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
   }

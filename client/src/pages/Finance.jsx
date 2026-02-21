@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 
 const Finance = () => {
+  const { user } = useAuth();
   const [fuelLogs, setFuelLogs] = useState([]);
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,17 @@ const Finance = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to remove this log?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/fuel/${id}`);
+        fetchData();
+      } catch (err) {
+        alert("Failed to delete log");
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,6 +123,7 @@ const Finance = () => {
                   <th className="px-6 py-4 text-right">Fuel Cost</th>
                   <th className="px-6 py-4 text-right">Misc Expense</th>
                   <th className="px-6 py-4 text-right">Total</th>
+                  <th className="px-6 py-4 text-right no-print">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -155,6 +169,19 @@ const Finance = () => {
                       </td>
                       <td className="px-6 py-4 text-right font-mono font-bold text-brand-rose">
                         ₹{total.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right no-print">
+                        {(user?.role === "Manager" || user?.role === "CEO") && (
+                          <button
+                            onClick={() => handleDelete(log.id)}
+                            className="text-brand-rose hover:text-red-400 transition-colors p-1"
+                            title="Remove Log"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        )}
                       </td>
                     </motion.tr>
                   );
