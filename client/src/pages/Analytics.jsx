@@ -1,0 +1,200 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
+const Analytics = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/analytics");
+        setStats(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
+  }, []);
+
+  const STATUS_COLORS = {
+    Available: "#10B981",
+    "On Trip": "#4F46E5",
+    "In Shop": "#F59E0B",
+    "Out of Service": "#EF4444",
+  };
+
+  return (
+    <div className="p-8">
+      <h1 className="text-3xl font-bold text-white mb-2">Analytics & ROI</h1>
+      <p className="text-slate-400 mb-8">
+        Performance metrics and financial overview
+      </p>
+
+      {loading ? (
+        <div className="text-white">Loading...</div>
+      ) : (
+        <>
+          {/* Top Level KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            <div className="glass-card p-6">
+              <h3 className="text-slate-400 text-sm font-medium">
+                Total Revenue
+              </h3>
+              <p className="text-3xl font-bold text-white mt-2">
+                ${stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
+              </p>
+            </div>
+            <div className="glass-card p-6">
+              <h3 className="text-slate-400 text-sm font-medium">
+                Total Operating Costs
+              </h3>
+              <p className="text-3xl font-bold text-brand-rose mt-2">
+                ${stats?.kpis?.totalCosts?.toLocaleString() || "0"}
+              </p>
+            </div>
+            <div className="glass-card p-6">
+              <h3 className="text-slate-400 text-sm font-medium">
+                Est. Net Profit
+              </h3>
+              <p className="text-3xl font-bold text-brand-emerald mt-2">
+                $
+                {(
+                  (stats?.kpis?.totalRevenue || 0) -
+                  (stats?.kpis?.totalCosts || 0)
+                ).toLocaleString()}
+              </p>
+            </div>
+            <div className="glass-card p-6">
+              <h3 className="text-slate-400 text-sm font-medium">Fleet ROI</h3>
+              <p className="text-3xl font-bold text-white mt-2">
+                {stats?.kpis?.fleetROI}%
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            {/* Monthly Revenue Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="glass-card p-6 h-96"
+            >
+              <h2 className="text-xl font-bold text-white mb-6">
+                Monthly Revenue ($)
+              </h2>
+              <ResponsiveContainer width="100%" height="80%">
+                <BarChart data={stats?.monthlyRevenue || []}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#334155"
+                    vertical={false}
+                  />
+                  <XAxis dataKey="month" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0F172A",
+                      borderColor: "#334155",
+                      color: "#fff",
+                    }}
+                    itemStyle={{ color: "#10B981" }}
+                  />
+                  <Bar dataKey="revenue" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </motion.div>
+
+            {/* Fleet Status Distribution */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="glass-card p-6 h-96 flex flex-col"
+            >
+              <h2 className="text-xl font-bold text-white mb-6">
+                Fleet Utilization
+              </h2>
+              <div className="flex-1 flex items-center justify-center">
+                {stats?.fleetStatus && stats.fleetStatus.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={stats.fleetStatus}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        paddingAngle={5}
+                        dataKey="count"
+                        nameKey="status"
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
+                      >
+                        {stats.fleetStatus.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={STATUS_COLORS[entry.status] || "#94a3b8"}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#0F172A",
+                          borderColor: "#334155",
+                          color: "#fff",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-slate-500">No vehicle data available</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="mt-8 flex justify-end space-x-4">
+            <button
+              className="btn-secondary flex items-center gap-2"
+              onClick={() => window.print()}
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                ></path>
+              </svg>
+              Export to PDF
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Analytics;

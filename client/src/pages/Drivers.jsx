@@ -1,0 +1,234 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+
+const Drivers = () => {
+  const [drivers, setDrivers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    license_number: "",
+    license_expiry: "",
+  });
+
+  const fetchDrivers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/drivers");
+      setDrivers(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDrivers();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post("http://localhost:5000/api/drivers", formData);
+      setShowModal(false);
+      setFormData({ name: "", license_number: "", license_expiry: "" });
+      fetchDrivers();
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to add driver");
+    }
+  };
+
+  const toggleStatus = async (id, currentStatus) => {
+    const newStatus =
+      currentStatus === "On Duty"
+        ? "Off Duty"
+        : currentStatus === "Off Duty"
+          ? "On Duty"
+          : currentStatus;
+    if (newStatus === currentStatus) return; // Cannot toggle if On Trip or Suspended without special endpoint logic
+
+    try {
+      const driver = drivers.find((d) => d.id === id);
+      await axios.put(`http://localhost:5000/api/drivers/${id}`, {
+        ...driver,
+        status: newStatus,
+      });
+      fetchDrivers();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const isExpired = (dateString) => {
+    return new Date(dateString) < new Date();
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Driver Staff</h1>
+          <p className="text-slate-400 mt-1">
+            Manage driver records and compliance
+          </p>
+        </div>
+        <button className="btn-primary" onClick={() => setShowModal(true)}>
+          + Add Driver
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="text-white">Loading...</div>
+      ) : (
+        <div className="glass-card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-white/5 text-slate-300 uppercase font-semibold">
+                <tr>
+                  <th className="px-6 py-4">Name</th>
+                  <th className="px-6 py-4">License #</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Compliance</th>
+                  <th className="px-6 py-4">Safety Score</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {drivers.map((d, i) => {
+                  const expired = isExpired(d.license_expiry);
+                  return (
+                    <motion.tr
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      key={d.id}
+                      className="hover:bg-white/5 transition-colors text-slate-200"
+                    >
+                      <td className="px-6 py-4 font-medium">{d.name}</td>
+                      <td className="px-6 py-4">{d.license_number}</td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`status-pill ${d.status === "On Duty" ? "status-available" : d.status === "On Trip" ? "status-trip" : "status-out"}`}
+                        >
+                          {d.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {expired ? (
+                          <span className="text-brand-rose font-medium text-xs bg-brand-rose/10 px-2 py-1 rounded">
+                            License Expired
+                          </span>
+                        ) : (
+                          <span className="text-brand-emerald text-xs">
+                            Valid til{" "}
+                            {new Date(d.license_expiry).toLocaleDateString()}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="w-full bg-slate-700/50 rounded-full h-2 mr-2 max-w-[100px]">
+                            <div
+                              className={`h-2 rounded-full ${d.safety_score > 80 ? "bg-brand-emerald" : d.safety_score > 50 ? "bg-brand-amber" : "bg-brand-rose"}`}
+                              style={{ width: `${d.safety_score}%` }}
+                            ></div>
+                          </div>
+                          <span>{d.safety_score}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {(d.status === "On Duty" ||
+                          d.status === "Off Duty") && (
+                          <button
+                            onClick={() => toggleStatus(d.id, d.status)}
+                            className="text-xs hover:text-white text-slate-400 underline transition-colors"
+                          >
+                            Toggle Duty
+                          </button>
+                        )}
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {drivers.length === 0 && (
+              <div className="p-8 text-center text-slate-500">
+                No drivers found.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-navy/80 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="glass-card p-6 w-full max-w-md"
+          >
+            <h2 className="text-xl font-bold text-white mb-6">
+              Add New Driver
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="label-text">Full Name</label>
+                <input
+                  required
+                  type="text"
+                  className="input-field"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Jane Doe"
+                />
+              </div>
+              <div>
+                <label className="label-text">License Number</label>
+                <input
+                  required
+                  type="text"
+                  className="input-field"
+                  value={formData.license_number}
+                  onChange={(e) =>
+                    setFormData({ ...formData, license_number: e.target.value })
+                  }
+                  placeholder="DL-987654"
+                />
+              </div>
+              <div>
+                <label className="label-text">License Expiry Date</label>
+                <input
+                  required
+                  type="date"
+                  className="input-field"
+                  value={formData.license_expiry}
+                  onChange={(e) =>
+                    setFormData({ ...formData, license_expiry: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Driver
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Drivers;
