@@ -41,6 +41,7 @@
                                 <field name="vehicle_id" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="driver_id" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="cargo_weight"/>
+                                <field name="revenue" widget="monetary" readonly="state in ('completed', 'cancelled')"/>
                             </group>
                             <group>
                                 <field name="start_date" readonly="1"/>
@@ -58,10 +59,23 @@
             </field>
         </record>
 
+        <!-- Command Center Graph Dashboard View-->
+        <record id="view_fleetflow_trip_graph" model="ir.ui.view">
+            <field name="name">fleetflow.trip.graph</field>
+            <field name="model">fleetflow.trip</field>
+            <field name="arch" type="xml">
+                <graph string="Trips Analytics" sample="1">
+                    <field name="state"/>
+                    <field name="vehicle_id"/>
+                    <field name="revenue" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
         <record id="action_fleetflow_trip" model="ir.actions.act_window">
             <field name="name">Trips</field>
             <field name="res_model">fleetflow.trip</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form,graph</field>
         </record>
     </data>
 </odoo>

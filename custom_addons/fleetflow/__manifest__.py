@@ -10,6 +10,7 @@
     'author': 'Devansh',
     'depends': ['base', 'fleet', 'hr'],
     'data': [
+        'security/security_groups.xml',
         'security/ir.model.access.csv',
         'views/trip_views.xml',
         'views/vehicle_views.xml',

@@ -13,6 +13,7 @@ class FleetTrip(models.Model):
     driver_id = fields.Many2one('hr.employee', string='Assigned Driver', required=True, domain=[('duty_status', 'in', ['unassigned', 'off_duty'])])
     
     cargo_weight = fields.Float(string="Cargo Weight (kg)", required=True)
+    revenue = fields.Float(string="Trip Revenue", tracking=True)
     state = fields.Selection([
         ('draft', 'Draft'),
         ('dispatched', 'Dispatched'),

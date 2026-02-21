@@ -19,5 +19,14 @@ class HrEmployeeExtended(models.Model):
     @api.depends('duty_status')
     def _compute_safety_metrics(self):
         for rec in self:
-            rec.trip_completion_rate = 100.0  # Placeholder 
-            rec.safety_score = 95.0           # Placeholder
+            trips = self.env['fleetflow.trip'].search([('driver_id', '=', rec.id)])
+            completed_trips = trips.filtered(lambda t: t.state == 'completed')
+            cancelled_trips = trips.filtered(lambda t: t.state == 'cancelled')
+            
+            total = len(trips)
+            if total > 0:
+                rec.trip_completion_rate = (len(completed_trips) / total) * 100.0
+                rec.safety_score = max(0.0, 100.0 - (len(cancelled_trips) * 5.0)) # Deduct 5 points per cancel
+            else:
+                rec.trip_completion_rate = 100.0
+                rec.safety_score = 100.0

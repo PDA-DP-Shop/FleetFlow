@@ -12,6 +12,21 @@
                     <field name="max_load_capacity"/>
                     <field name="current_status"/>
                 </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Financials &amp; Analytics">
+                        <group>
+                            <group string="Costs">
+                                <field name="total_maintenance_cost" widget="monetary"/>
+                                <field name="total_fuel_cost" widget="monetary"/>
+                                <field name="total_operational_cost" widget="monetary" decoration-danger="1"/>
+                            </group>
+                            <group string="Returns">
+                                <field name="net_revenue" widget="monetary" decoration-success="1"/>
+                                <field name="vehicle_roi" widget="percentage" decoration-info="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
             </field>
         </record>
 
