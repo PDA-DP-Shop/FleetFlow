@@ -57,3 +57,135 @@
     @apply block text-sm font-medium text-slate-300 mb-1.5;
   }
 }
+
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  /* Hide sidebar and non-content buttons */
+  aside, 
+  nav, 
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .no-print,
+  .framer-motion-div /* Hide motion effects if any */ {
+    display: none !important;
+  }
+
+  /* Expand main content */
+  main,
+  .p-8,
+  #root > div > div {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+  }
+
+  h1, h2, h3, h4, p, td, th {
+    color: black !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+  }
+
+  /* Force single column for grids in print */
+  .grid {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .glass-card {
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    margin-bottom: 20px !important;
+    padding: 15px !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+  }
+
+  /* KPI cards specific layout in print */
+  .grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4,
+  .grid-cols-1.md\:grid-cols-2.xl\:grid-cols-4 {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-top: 20px;
+  }
+
+  th {
+    background: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    padding: 10px !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  td {
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 10px !important;
+  }
+
+  /* Chart Refinements */
+  .recharts-responsive-container {
+    height: 350px !important;
+    width: 100% !important;
+    margin: 20px 0;
+  }
+
+  .recharts-cartesian-grid-horizontal line,
+  .recharts-cartesian-grid-vertical line {
+    stroke: #e9ecef !important;
+  }
+
+  .recharts-text {
+    fill: #495057 !important;
+    font-size: 10pt !important;
+  }
+
+  /* Headers and Footers */
+  .print-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 3px solid #4f46e5;
+    padding-bottom: 20px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9pt;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+  }
+}
+
+.print-header, .print-footer {
+  display: none;
+}
