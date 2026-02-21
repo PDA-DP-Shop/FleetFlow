@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { io } from "socket.io-client";
 import {
@@ -11,51 +11,51 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  AreaChart,
+  Area
 } from "recharts";
+import { 
+  TrendingUp, 
+  Truck, 
+  Clock, 
+  AlertCircle, 
+  RotateCw, 
+  Printer, 
+  ArrowUpRight,
+  Navigation
+} from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [trips, setTrips] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchDashboardData = async () => {
+    setIsRefreshing(true);
     try {
       const [analyticsRes, tripsRes] = await Promise.all([
         axios.get("http://localhost:5000/api/analytics"),
         axios.get("http://localhost:5000/api/trips"),
       ]);
       setStats(analyticsRes.data);
-      // Get 5 most recent trips
       setTrips(tripsRes.data.slice(0, 5));
     } catch (err) {
       console.error(err);
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
     }
   };
 
   useEffect(() => {
     fetchDashboardData();
-
-    // Initialize Socket Connection
     const socket = io("http://localhost:5000");
 
-    // Listen for Realtime Events
-    socket.on("trip_updated", (updatedTrip) => {
-      // Refresh the entire payload to get recalculated KPIs
-      // (a bit heavy, but ensures 100% accuracy for the demo)
-      fetchDashboardData();
-    });
+    socket.on("trip_updated", () => fetchDashboardData());
+    socket.on("vehicle_updated", () => fetchDashboardData());
+    socket.on("driver_updated", () => fetchDashboardData());
 
-    socket.on("vehicle_updated", () => {
-      fetchDashboardData();
-    });
-
-    socket.on("driver_updated", () => {
-      fetchDashboardData();
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    return () => socket.disconnect();
   }, []);
 
   const getStatusCount = (statusName) => {
@@ -64,15 +64,50 @@ const Dashboard = () => {
     return s ? s.count : 0;
   };
 
+  const kpis = [
+    {
+      label: "Active Fleet",
+      value: getStatusCount("Available") + getStatusCount("On Trip"),
+      sub: "Available + En Route",
+      icon: Truck,
+      color: "text-brand-indigo",
+      bg: "bg-brand-indigo/10"
+    },
+    {
+      label: "Maintenance",
+      value: getStatusCount("In Shop"),
+      sub: "Currently in garage",
+      icon: Clock,
+      color: "text-brand-amber",
+      bg: "bg-brand-amber/10"
+    },
+    {
+      label: "Total Revenue",
+      value: `₹${stats?.kpis?.totalRevenue?.toLocaleString() || "0"}`,
+      sub: "Completed earnings",
+      icon: TrendingUp,
+      color: "text-brand-emerald",
+      bg: "bg-brand-emerald/10"
+    },
+    {
+      label: "Fleet ROI",
+      value: `${stats?.kpis?.fleetROI || "0"}%`,
+      sub: "Performance Index",
+      icon: ArrowUpRight,
+      color: "text-brand-rose",
+      bg: "bg-brand-rose/10"
+    }
+  ];
+
   return (
-    <div className="p-8">
+    <div className="p-8 pb-12 overflow-x-hidden">
       {/* Print Header */}
       <div className="print-header">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <img src="/logo/logo-1.png" alt="FleetFlow" className="w-16 h-16" />
             <div>
-              <h1 className="text-2xl font-bold text-black">FleetFlow Logistics</h1>
+              <h1 className="text-2xl font-bold text-black uppercase tracking-tighter italic">FLEETFLOW Logistics</h1>
               <p className="text-sm text-slate-600">Operations Command Center Report</p>
             </div>
           </div>
@@ -83,170 +118,187 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-brand-indigo to-brand-emerald no-print">
-              Command Center
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
+          <div className="flex items-center gap-3 mb-2 no-print">
+            <div className="w-2 h-8 bg-brand-indigo rounded-full" />
+            <h1 className="text-4xl font-black text-white tracking-tight uppercase italic">
+              Command <span className="text-brand-indigo">Center</span>
             </h1>
-            <p className="text-slate-400 mt-1 no-print">
-              Welcome back, {user?.name} ({user?.role})
-            </p>
           </div>
-          <div className="flex gap-3 no-print">
-            <button
-              className="btn-secondary flex items-center gap-2"
-              onClick={() => window.print()}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              Export PDF
-            </button>
-            <button
-              className="btn-secondary"
-              onClick={() => window.location.reload()}
-            >
-              Refresh Data
-            </button>
-          </div>
+          <p className="text-slate-400 font-medium no-print">
+            Operational Intelligence Dashboard · <span className="text-white">Active Session: {user?.name}</span>
+          </p>
+        </motion.div>
+
+        <div className="flex items-center gap-3 no-print">
+          <button
+            className="btn-secondary flex items-center gap-2 group"
+            onClick={() => window.print()}
+          >
+            <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span className="text-sm">Export Operations</span>
+          </button>
+          <button
+            className="btn-primary flex items-center gap-2 group"
+            onClick={fetchDashboardData}
+            disabled={isRefreshing}
+          >
+            <RotateCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-500'}`} />
+            <span className="text-sm">Synchronize</span>
+          </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card p-6"
-        >
-          <h3 className="text-slate-400 text-sm font-medium">Active Fleet</h3>
-          <p className="text-3xl font-bold text-white mt-2">
-            {getStatusCount("Available") + getStatusCount("On Trip")}
-          </p>
-          <div className="mt-2 text-xs text-brand-emerald">
-            Available + On Trip
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card p-6"
-        >
-          <h3 className="text-slate-400 text-sm font-medium">In Maintenance</h3>
-          <p className="text-3xl font-bold text-brand-amber mt-2">
-            {getStatusCount("In Shop")}
-          </p>
-          <div className="mt-2 text-xs text-slate-500">Currently in garage</div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="glass-card p-6"
-        >
-          <h3 className="text-slate-400 text-sm font-medium">Total Revenue</h3>
-          <p className="text-3xl font-bold text-white mt-2">
-            ₹{stats?.kpis?.totalRevenue?.toLocaleString() || "0"}
-          </p>
-          <div className="mt-2 text-xs text-brand-indigo">
-            Completed trips only
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-          className="glass-card p-6 border-brand-emerald/30"
-        >
-          <h3 className="text-slate-400 text-sm font-medium">Fleet ROI</h3>
-          <p className="text-3xl font-bold text-brand-emerald mt-2">
-            {stats?.kpis?.fleetROI || "0"}%
-          </p>
-          <div className="mt-2 text-xs text-slate-500">Revenue vs Costs</div>
-        </motion.div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {kpis.map((kpi, i) => (
+          <motion.div
+            key={kpi.label}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="glass-card p-6 flex flex-col justify-between relative overflow-hidden group"
+          >
+            <div className={`absolute top-0 right-0 w-24 h-24 ${kpi.bg} blur-3xl rounded-full -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700`} />
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className={`p-3 rounded-xl ${kpi.bg} ${kpi.color}`}>
+                <kpi.icon className="w-6 h-6" />
+              </div>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest">{kpi.label}</h3>
+              <p className="text-4xl font-black text-white mt-1 tabular-nums tracking-tighter">
+                {kpi.value}
+              </p>
+              <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-wide flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-indigo" /> {kpi.sub}
+              </p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Chart Section */}
+        {/* Performance Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="glass-card p-6 lg:col-span-2"
+          className="glass-card p-8 lg:col-span-2 flex flex-col"
         >
-          <h2 className="text-xl font-bold text-white mb-6">Monthly Revenue</h2>
-          <div className="h-72 w-full">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h2 className="text-xl font-black text-white tracking-tight uppercase">Revenue Trajectory</h2>
+              <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Monthly Enterprise Performance</p>
+            </div>
+            <div className="flex items-center gap-2 bg-brand-emerald/10 px-3 py-1 rounded-full border border-brand-emerald/20">
+              <TrendingUp className="w-3 h-3 text-brand-emerald" />
+              <span className="text-[10px] font-black text-brand-emerald uppercase">Increasing</span>
+            </div>
+          </div>
+          
+          <div className="h-80 w-full mt-auto">
             {stats?.monthlyRevenue ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.monthlyRevenue}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="#334155"
-                    vertical={false}
-                  />
-                  <XAxis dataKey="month" stroke="#94a3b8" />
-                  <YAxis stroke="#94a3b8" />
+                <AreaChart data={stats.monthlyRevenue}>
+                  <defs>
+                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                  <XAxis dataKey="month" stroke="#475569" fontSize={11} fontWeight={600} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#475569" fontSize={11} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val/1000}k`} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#0F172A",
-                      borderColor: "#334155",
+                      backgroundColor: "#1e293b",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "12px",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
                       color: "#fff",
                     }}
-                    itemStyle={{ color: "#10B981" }}
+                    cursor={{ stroke: '#4F46E5', strokeWidth: 2 }}
                   />
-                  <Bar dataKey="revenue" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-                </BarChart>
+                  <Area type="monotone" dataKey="revenue" stroke="#4F46E5" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
+                </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-500">
-                Loading chart...
+              <div className="h-full flex items-center justify-center text-slate-500 animate-pulse font-bold uppercase tracking-widest text-xs">
+                Synchronizing data stream...
               </div>
             )}
           </div>
         </motion.div>
 
-        {/* Recent Trips Table limits to small area */}
+        {/* Live Activity Feed */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6 }}
-          className="glass-card p-6"
+          className="glass-card p-8 flex flex-col"
         >
-          <h2 className="text-xl font-bold text-white mb-6">Recent Trips</h2>
-          <div className="space-y-4">
+          <div className="flex items-center gap-2 text-brand-indigo mb-6">
+            <Navigation className="w-5 h-5 fill-current" />
+            <h2 className="text-xl font-black text-white tracking-tight uppercase">Recent Logistics</h2>
+          </div>
+          
+          <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar pr-2">
             {trips.length === 0 ? (
-              <p className="text-slate-500 text-sm">No recent trips.</p>
+              <div className="flex flex-col items-center justify-center h-full text-slate-600 gap-3">
+                <AlertCircle className="w-12 h-12" />
+                <p className="text-sm font-bold uppercase tracking-widest">No Active Vectors</p>
+              </div>
             ) : (
-              trips.map((trip) => (
-                <div key={trip.id} className="border-b border-white/5 pb-3">
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="font-medium text-slate-200">
-                      {trip.origin} <span className="text-brand-indigo">→</span>{" "}
-                      {trip.destination}
+              <AnimatePresence>
+                {trips.map((trip, idx) => (
+                  <motion.div 
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + idx * 0.1 }}
+                    key={trip.id} 
+                    className="relative pl-6 group border-l-2 border-white/5 hover:border-brand-indigo transition-colors"
+                  >
+                    <div className="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-slate-700 group-hover:bg-brand-indigo shadow-[0_0_10px_rgba(79,70,229,0.5)] transition-colors" />
+                    
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="font-black text-white text-sm tracking-tight leading-none group-hover:text-brand-indigo transition-colors flex items-center gap-2">
+                        {trip.origin} <span className="text-brand-indigo">/</span> {trip.destination}
+                      </div>
+                      <span className={`status-pill ${trip.status === "Completed" ? "status-available" : "status-trip"}`}>
+                        {trip.status}
+                      </span>
                     </div>
-                    <div
-                      className={`status-pill ${trip.status === "Completed" ? "status-available" : trip.status === "Dispatched" ? "status-trip" : "bg-slate-700 text-slate-300"}`}
-                    >
-                      {trip.status}
+                    
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-3">
+                        <div className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded border uppercase">
+                          {trip.license_plate}
+                        </div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[80px]">
+                          {trip.driver_name}
+                        </div>
+                      </div>
+                      <div className="text-sm font-black text-white tabular-nums">
+                        ₹{trip.estimated_revenue?.toLocaleString()}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-xs text-slate-400 flex justify-between mt-2">
-                    <span>Vehicle: {trip.license_plate}</span>
-                    <span>₹{trip.estimated_revenue}</span>
-                  </div>
-                </div>
-              ))
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
+          
+          <button className="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 transition-all border border-transparent hover:border-white/10 no-print">
+            View All Manfests
+          </button>
         </motion.div>
       </div>
+
       <div className="print-footer">
         <p>FleetFlow Logistics Platform - Command Center Overview - Page 1 of 1</p>
       </div>
