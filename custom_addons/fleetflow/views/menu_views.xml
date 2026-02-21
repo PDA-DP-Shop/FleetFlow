@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Main Top Menu Profile -->
+        <menuitem id="menu_fleetflow_root" name="FleetFlow" sequence="10" web_icon="fleetflow,static/description/icon.png"/>
+
+        <!-- Menus inside FleetFlow -->
+        <menuitem id="menu_fleetflow_command_center" name="Command Center" parent="menu_fleetflow_root" sequence="1" action="action_fleetflow_trip"/>
+        
+        <menuitem id="menu_fleetflow_dispatcher" name="Trip Dispatcher" parent="menu_fleetflow_root" sequence="2" action="action_fleetflow_trip"/>
+        
+        <!-- Redirects to Odoo Fleet Vehicle Registry Action -->
+        <menuitem id="menu_fleetflow_vehicles" name="Vehicle Registry" parent="menu_fleetflow_root" sequence="3" action="fleet.fleet_vehicle_action"/>
+        
+        <!-- Redirects to Odoo HR Employees Action for Driver Profiles-->
+        <menuitem id="menu_fleetflow_drivers" name="Driver Profiles" parent="menu_fleetflow_root" sequence="4" action="hr.open_view_employee_list_my"/>
+        
+        <!-- Redirects to Maintenance -->
+        <menuitem id="menu_fleetflow_maintenance" name="Maintenance" parent="menu_fleetflow_root" sequence="5" action="fleet.fleet_vehicle_log_services_action"/>
+        
+    </data>
+</odoo>

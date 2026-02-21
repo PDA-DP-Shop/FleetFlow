@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Form view -->
+        <record id="view_fleet_vehicle_form_inherit_fleetflow" model="ir.ui.view">
+            <field name="name">fleet.vehicle.form.inherit.fleetflow</field>
+            <field name="model">fleet.vehicle</field>
+            <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Add Max Load Capacity and Status -->
+                <xpath expr="//field[@name='driver_id']" position="after">
+                    <field name="max_load_capacity"/>
+                    <field name="current_status"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Inherit Tree View -->
+        <record id="view_fleet_vehicle_tree_inherit_fleetflow" model="ir.ui.view">
+            <field name="name">fleet.vehicle.tree.inherit.fleetflow</field>
+            <field name="model">fleet.vehicle</field>
+            <field name="inherit_id" ref="fleet.fleet_vehicle_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='license_plate']" position="after">
+                    <field name="max_load_capacity"/>
+                    <field name="current_status" widget="badge" 
+                           decoration-success="current_status == 'available'" 
+                           decoration-warning="current_status == 'on_trip'" 
+                           decoration-danger="current_status == 'in_shop'" 
+                           decoration-muted="current_status == 'retired'"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
