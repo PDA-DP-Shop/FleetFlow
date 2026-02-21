@@ -20,6 +20,14 @@ const getAnalytics = async (req, res) => {
             GROUP BY month ORDER BY month
         `);
 
+        // 2b. Daily Revenue (Last 30 Days for Growth Chart)
+        const dailyRevenue = await db.query(`
+            SELECT DATE(created_at) as date, SUM(estimated_revenue) as revenue
+            FROM trips
+            WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+            GROUP BY date ORDER BY date
+        `);
+
         // 3. Fuel efficiency & ROI overall logic
         // Total Distance = (we don't have distance column, but we have Revenue & Odometer. We can just simulate distance or use odometer aggregates).
         // Let's calculate total fuel cost, total maintenance cost, total revenue
@@ -42,6 +50,7 @@ const getAnalytics = async (req, res) => {
         res.json({
             fleetStatus: fleetStatusRes.rows,
             monthlyRevenue: tripsRevenue.rows,
+            dailyRevenue: dailyRevenue.rows,
             kpis: {
                 totalRevenue: revenue,
                 totalCosts: fuel + maintenance,

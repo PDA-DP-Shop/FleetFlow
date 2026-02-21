@@ -209,7 +209,6 @@ const Analytics = () => {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            {/* Monthly Revenue Chart */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -219,49 +218,77 @@ const Analytics = () => {
               <div className="absolute top-0 right-0 w-64 h-64 bg-brand-indigo/5 blur-[100px] rounded-full -mr-32 -mt-32" />
               <div className="flex items-center justify-between mb-8 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-6 bg-brand-indigo rounded-full" />
+                  <div className="w-1.5 h-6 bg-brand-indigo rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)]" />
                   <h2 className="text-xl font-black text-white italic uppercase tracking-tight">Revenue Trajectory</h2>
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  <Layers className="w-3 h-3" /> Monthly Aggregation
+                  <Layers className="w-3 h-3 text-brand-indigo" /> Cumulative Aggregate
                 </div>
               </div>
               
               <div className="h-[75%] w-full relative z-10">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={stats?.monthlyRevenue || []}>
+                  <AreaChart 
+                    data={stats?.dailyRevenue || []}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
                     <defs>
                       <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.5}/>
+                        <stop offset="50%" stopColor="#4F46E5" stopOpacity={0.1}/>
                         <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                       </linearGradient>
+                      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                    <CartesianGrid 
+                      strokeDasharray="10 10" 
+                      stroke="#ffffff05" 
+                      vertical={true} 
+                      horizontal={true}
+                    />
                     <XAxis 
-                      dataKey="month" 
+                      dataKey="date" 
                       stroke="#475569" 
                       fontSize={10} 
-                      fontWeight="bold"
-                      tickFormatter={(val) => val.toUpperCase()}
+                      fontWeight="900"
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
+                      tickFormatter={(val) => {
+                        const d = new Date(val);
+                        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }).toUpperCase();
+                      }}
                     />
                     <YAxis 
                       stroke="#475569" 
                       fontSize={10} 
-                      fontWeight="bold"
+                      fontWeight="900"
+                      tickLine={false}
+                      axisLine={false}
+                      dx={-10}
                       tickFormatter={(val) => `₹${val/1000}k`}
                     />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: "rgba(15, 23, 42, 0.9)",
-                        backdropFilter: "blur(8px)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        borderRadius: "12px",
-                        boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
-                        padding: "12px"
+                      cursor={{ 
+                        stroke: '#4F46E5', 
+                        strokeWidth: 1, 
+                        strokeDasharray: '5 5' 
                       }}
-                      itemStyle={{ color: "#fff", fontWeight: "bold" }}
-                      labelStyle={{ color: "#64748b", textTransform: "uppercase", fontSize: "10px", fontWeight: "900", marginBottom: "4px" }}
-                      formatter={(val) => [`₹${val.toLocaleString()}`, "Industrial Revenue"]}
+                      contentStyle={{
+                        backgroundColor: "rgba(15, 23, 42, 0.95)",
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid rgba(79, 70, 229, 0.3)",
+                        borderRadius: "16px",
+                        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                        padding: "16px"
+                      }}
+                      itemStyle={{ color: "#fff", fontWeight: "900", fontSize: "14px" }}
+                      labelStyle={{ color: "#4F46E5", textTransform: "uppercase", fontSize: "10px", fontWeight: "900", letterSpacing: "2px", marginBottom: "8px" }}
+                      labelFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
+                      formatter={(val) => [`₹${val.toLocaleString()}`, "Daily Revenue"]}
                     />
                     <Area 
                       type="monotone" 
@@ -270,7 +297,15 @@ const Analytics = () => {
                       strokeWidth={4}
                       fillOpacity={1} 
                       fill="url(#colorRev)" 
-                      animationDuration={2000}
+                      filter="url(#glow)"
+                      animationDuration={2500}
+                      activeDot={{ 
+                        r: 6, 
+                        fill: "#4F46E5", 
+                        stroke: "#fff", 
+                        strokeWidth: 2,
+                        filter: "drop-shadow(0 0 8px rgba(79, 70, 229, 0.8))"
+                      }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -287,66 +322,94 @@ const Analytics = () => {
               <div className="absolute top-0 right-0 w-64 h-64 bg-brand-emerald/5 blur-[100px] rounded-full -mr-32 -mt-32" />
               <div className="flex items-center justify-between mb-8 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-6 bg-brand-emerald rounded-full" />
+                  <div className="w-1.5 h-6 bg-brand-emerald rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                   <h2 className="text-xl font-black text-white italic uppercase tracking-tight">Fleet Integrity</h2>
                 </div>
                 <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  <Clock className="w-3 h-3" /> Real-time Audit
+                  <Clock className="w-3 h-3 text-brand-emerald" /> Real-time Audit
                 </div>
               </div>
               
               <div className="flex-1 flex flex-col md:flex-row items-center justify-center relative z-10">
-                <div className="w-full md:w-3/5 h-64 md:h-full">
+                <div className="w-full md:w-3/5 h-64 md:h-full relative">
                   {stats?.fleetStatus && stats.fleetStatus.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={stats.fleetStatus}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={80}
-                          outerRadius={110}
-                          paddingAngle={8}
-                          dataKey="count"
-                          nameKey="status"
-                          animationDuration={1500}
-                        >
-                          {stats.fleetStatus.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={STATUS_COLORS[entry.status] || "#94a3b8"}
-                              stroke="none"
-                              className="focus:outline-none"
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "rgba(15, 23, 42, 0.9)",
-                            backdropFilter: "blur(8px)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            borderRadius: "12px",
-                            padding: "12px"
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-4xl font-black text-white italic leading-none">
+                          {stats.fleetStatus.reduce((acc, curr) => acc + parseInt(curr.count), 0)}
+                        </span>
+                        <span className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1">Total Assets</span>
+                      </div>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <defs>
+                            <filter id="pieGlow" x="-20%" y="-20%" width="140%" height="140%">
+                              <feGaussianBlur stdDeviation="3" result="blur" />
+                              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                          </defs>
+                          <Pie
+                            data={stats.fleetStatus}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={80}
+                            outerRadius={105}
+                            paddingAngle={10}
+                            dataKey="count"
+                            nameKey="status"
+                            animationDuration={1500}
+                            stroke="none"
+                          >
+                            {stats.fleetStatus.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={STATUS_COLORS[entry.status] || "#94a3b8"}
+                                filter="url(#pieGlow)"
+                                className="focus:outline-none hover:opacity-80 transition-opacity cursor-pointer"
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: "rgba(15, 23, 42, 0.95)",
+                              backdropFilter: "blur(12px)",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
+                              borderRadius: "16px",
+                              padding: "16px",
+                              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+                            }}
+                            itemStyle={{ fontWeight: "900", color: "#fff" }}
+                            labelStyle={{ display: "none" }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </>
                   ) : (
                     <div className="flex items-center justify-center h-full">
                         <Activity className="w-12 h-12 text-slate-800 animate-pulse" />
                     </div>
                   )}
                 </div>
-                <div className="w-full md:w-2/5 mt-6 md:mt-0 space-y-4">
-                    {stats?.fleetStatus?.map((entry, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/5 transition-colors group/item">
-                            <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLORS[entry.status] }} />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover/item:text-white transition-colors">{entry.status}</span>
-                            </div>
-                            <span className="font-black text-white text-sm italic">{entry.count} Units</span>
-                        </div>
-                    ))}
+                <div className="w-full md:w-2/5 mt-6 md:mt-0 space-y-3">
+                    {stats?.fleetStatus?.map((entry, index) => {
+                        const total = stats.fleetStatus.reduce((acc, curr) => acc + parseInt(curr.count), 0);
+                        const percentage = ((parseInt(entry.count) / total) * 100).toFixed(0);
+                        return (
+                          <div key={index} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/5 transition-all duration-300 group/item hover:translate-x-1">
+                              <div className="flex items-center gap-4">
+                                  <div className="w-2.5 h-2.5 rounded-full shadow-lg" style={{ backgroundColor: STATUS_COLORS[entry.status], boxShadow: `0 0 12px ${STATUS_COLORS[entry.status]}44` }} />
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover/item:text-slate-300 transition-colors">{entry.status}</span>
+                                    <span className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">{percentage}% Efficiency Share</span>
+                                  </div>
+                              </div>
+                              <div className="flex flex-col items-end">
+                                <span className="font-black text-white text-base italic leading-tight">{entry.count}</span>
+                                <span className="text-[7px] font-black text-slate-600 uppercase tracking-widest">Units</span>
+                              </div>
+                          </div>
+                        );
+                    })}
                 </div>
               </div>
             </motion.div>

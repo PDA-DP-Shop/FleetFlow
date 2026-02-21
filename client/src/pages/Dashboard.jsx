@@ -183,53 +183,91 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Performance Chart */}
+{/* Performance Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="glass-card p-8 lg:col-span-2 flex flex-col"
+          className="glass-card p-8 lg:col-span-2 flex flex-col relative overflow-hidden"
         >
-          <div className="flex justify-between items-center mb-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand-indigo/5 blur-[100px] rounded-full -mr-32 -mt-32" />
+          <div className="flex justify-between items-center mb-8 relative z-10">
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight uppercase">Revenue Trajectory</h2>
-              <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Monthly Enterprise Performance</p>
+              <h2 className="text-xl font-black text-white tracking-tight uppercase italic">Revenue Trajectory</h2>
+              <p className="text-[10px] text-slate-500 font-bold uppercase mt-1 tracking-widest">Daily Growth Index</p>
             </div>
             <div className="flex items-center gap-2 bg-brand-emerald/10 px-3 py-1 rounded-full border border-brand-emerald/20">
               <TrendingUp className="w-3 h-3 text-brand-emerald" />
-              <span className="text-[10px] font-black text-brand-emerald uppercase">Increasing</span>
+              <span className="text-[10px] font-black text-brand-emerald uppercase italic">Incline</span>
             </div>
           </div>
           
-          <div className="h-80 w-full mt-auto">
-            {stats?.monthlyRevenue ? (
+          <div className="h-80 w-full mt-auto relative z-10">
+            {stats?.dailyRevenue ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.monthlyRevenue}>
+                <AreaChart 
+                  data={stats.dailyRevenue}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
                   <defs>
-                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                    <linearGradient id="colorRevDash" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.5}/>
                       <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                     </linearGradient>
+                    <filter id="dashGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feGaussianBlur stdDeviation="3" result="dashBlur" />
+                      <feComposite in="SourceGraphic" in2="dashBlur" operator="over" />
+                    </filter>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                  <XAxis dataKey="month" stroke="#475569" fontSize={11} fontWeight={600} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#475569" fontSize={11} fontWeight={600} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val/1000}k`} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1e293b",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "12px",
-                      boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                      color: "#fff",
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={true} horizontal={true} />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#475569" 
+                    fontSize={10} 
+                    fontWeight="900" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickFormatter={(val) => {
+                      const d = new Date(val);
+                      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }).toUpperCase();
                     }}
-                    cursor={{ stroke: '#4F46E5', strokeWidth: 2 }}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#4F46E5" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
+                  <YAxis 
+                    stroke="#475569" 
+                    fontSize={10} 
+                    fontWeight="900" 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tickFormatter={(val) => `₹${val/1000}k`} 
+                  />
+                  <Tooltip
+                    cursor={{ stroke: '#4F46E5', strokeWidth: 1, strokeDasharray: '5 5' }}
+                    contentStyle={{
+                      backgroundColor: "rgba(15, 23, 42, 0.95)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid rgba(79, 70, 229, 0.3)",
+                      borderRadius: "14px",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
+                    }}
+                    itemStyle={{ color: "#fff", fontWeight: "900", fontSize: "12px" }}
+                    labelStyle={{ color: "#4F46E5", textTransform: "uppercase", fontSize: "10px", fontWeight: "900", letterSpacing: "1px", marginBottom: "4px" }}
+                    labelFormatter={(val) => new Date(val).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#4F46E5" 
+                    strokeWidth={4} 
+                    fillOpacity={1} 
+                    fill="url(#colorRevDash)" 
+                    filter="url(#dashGlow)"
+                    activeDot={{ r: 5, fill: "#4F46E5", stroke: "#fff", strokeWidth: 2 }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-500 animate-pulse font-bold uppercase tracking-widest text-xs">
-                Synchronizing data stream...
+              <div className="h-full flex items-center justify-center text-slate-500 animate-pulse font-black uppercase tracking-widest text-[10px] italic">
+                Awaiting Data Stream Sync...
               </div>
             )}
           </div>
