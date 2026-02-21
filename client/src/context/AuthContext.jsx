@@ -50,9 +50,15 @@ export const AuthProvider = ({ children }) => {
       password,
       role,
     });
+    
+    if (res.data.status === 'Pending') {
+      return res.data;
+    }
+
     localStorage.setItem("token", res.data.token);
     axios.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
     setUser(res.data.user);
+    return res.data;
   };
 
   const logout = () => {

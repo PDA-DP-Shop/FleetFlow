@@ -11,6 +11,8 @@ import Dispatch from "./pages/Dispatch";
 import Maintenance from "./pages/Maintenance";
 import Finance from "./pages/Finance";
 import Analytics from "./pages/Analytics";
+import Notifications from "./pages/Notifications";
+import UserManagement from "./pages/UserManagement";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/users" element={<UserManagement />} />
               <Route path="/vehicles" element={<Vehicles />} />
               <Route path="/drivers" element={<Drivers />} />
               <Route path="/dispatch" element={<Dispatch />} />

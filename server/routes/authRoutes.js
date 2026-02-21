@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { login, signup, getMe } = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
+const { login, signup, getMe, getUsers } = require('../controllers/authController');
+const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 // Public routes
 router.post('/login', login);
 router.post('/signup', signup);
 
-// Private route -> Get current user
+// Private routes
 router.get('/me', authenticateToken, getMe);
+router.get('/users', authenticateToken, authorizeRole('CEO', 'Manager'), getUsers);
 
 module.exports = router;

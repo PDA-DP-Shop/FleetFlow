@@ -10,6 +10,7 @@ const Signup = () => {
   const [role, setRole] = useState("Manager");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const { signup, user } = useAuth();
   const navigate = useNavigate();
@@ -22,10 +23,15 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
     try {
-      await signup(name, email, password, role);
-      navigate("/");
+      const res = await signup(name, email, password, role);
+      if (res && res.status === "Pending") {
+        setSuccess(res.message);
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.response?.data?.error || "Failed to create account");
     } finally {
@@ -74,6 +80,22 @@ const Signup = () => {
             className="bg-brand-rose/10 border border-brand-rose/20 text-brand-rose px-4 py-3 rounded-xl mb-6 text-sm"
           >
             {error}
+          </motion.div>
+        )}
+
+        {success && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-brand-emerald/10 border border-brand-emerald/20 text-brand-emerald px-4 py-3 rounded-xl mb-6 text-sm text-center"
+          >
+            <div className="text-lg font-bold mb-1">Request Received</div>
+            {success}
+            <div className="mt-4">
+              <Link to="/login" className="btn-primary inline-block px-6 py-2">
+                Go to Login
+              </Link>
+            </div>
           </motion.div>
         )}
 

@@ -8,37 +8,47 @@ const Sidebar = () => {
     {
       path: "/",
       label: "Dashboard",
-      roles: ["Manager", "Dispatcher", "Safety Officer", "Finance"],
+      roles: ["CEO", "Manager", "Dispatcher", "Safety Officer", "Finance"],
+    },
+    {
+      path: "/notifications",
+      label: "Approvals & Requests",
+      roles: ["CEO", "Manager"],
+    },
+    {
+      path: "/users",
+      label: "User Directory",
+      roles: ["CEO", "Manager"],
     },
     {
       path: "/vehicles",
       label: "Fleet Registry",
-      roles: ["Manager", "Dispatcher"],
+      roles: ["CEO", "Manager", "Dispatcher"],
     },
     {
       path: "/dispatch",
       label: "Trip Dispatch",
-      roles: ["Manager", "Dispatcher"],
+      roles: ["CEO", "Manager", "Dispatcher"],
     },
     {
       path: "/maintenance",
       label: "Maintenance Logs",
-      roles: ["Manager", "Dispatcher"],
+      roles: ["CEO", "Manager", "Dispatcher"],
     },
     {
       path: "/drivers",
       label: "Driver Staff",
-      roles: ["Manager", "Safety Officer"],
+      roles: ["CEO", "Manager", "Safety Officer"],
     },
     {
       path: "/finance",
       label: "Fuel & Expenses",
-      roles: ["Manager", "Finance"],
+      roles: ["CEO", "Manager", "Finance"],
     },
     {
       path: "/analytics",
       label: "Analytics & ROI",
-      roles: ["Manager", "Finance"],
+      roles: ["CEO", "Manager", "Finance"],
     },
   ];
 
