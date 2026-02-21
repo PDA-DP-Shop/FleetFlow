@@ -1,6 +1,5 @@
 /**
- * FleetFlow Core Application Logic
- * Powered by Vanilla JS & LocalStorage (Mocking Real-time DB)
+ * FleetFlow Logic (Wireframe/Local Data Version)
  */
 
 const app = {
@@ -19,26 +18,24 @@ const app = {
     },
 
     cacheDOM: function() {
-        this.appContainer = document.getElementById('app-container');
         this.authPage = document.getElementById('auth-page');
         this.mainLayout = document.getElementById('main-layout');
         this.pages = document.querySelectorAll('.content-section');
         this.navItems = document.querySelectorAll('.nav-item');
-        this.pageTitle = document.getElementById('page-title');
     },
 
     bindEvents: function() {
-        // Auth
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.login();
+            this.authPage.classList.remove('active');
+            this.mainLayout.classList.add('active');
         });
         
         document.getElementById('logout-btn').addEventListener('click', () => {
-            this.logout();
+             this.mainLayout.classList.remove('active');
+             this.authPage.classList.add('active');
         });
 
-        // Navigation
         this.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 const target = item.getAttribute('data-target');
@@ -46,47 +43,47 @@ const app = {
             });
         });
 
-        // Forms
         document.getElementById('create-trip-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.createTrip();
         });
 
-        document.getElementById('maintenance-form').addEventListener('submit', (e) => {
+        document.getElementById('form-add-vehicle').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.logMaintenance();
+            this.addVehicle();
         });
-
-        // Mobile Menu
-        document.querySelector('.mobile-menu-toggle').addEventListener('click', () => {
-            document.querySelector('.sidebar').classList.toggle('open');
+        
+        document.getElementById('form-log-service').addEventListener('submit', (e) => {
+             e.preventDefault();
+             this.logService();
+        });
+        
+        document.getElementById('form-add-expense').addEventListener('submit', (e) => {
+             e.preventDefault();
+             this.closeModal('add-expense-modal'); // dummy close for now
         });
     },
 
-    // --- Mock Database (LocalStorage) ---
     loadData: function() {
-        const _data = localStorage.getItem('fleetFlow_data');
+        const _data = localStorage.getItem('fleetFlow_wf_data');
         if (_data) {
             this.data = JSON.parse(_data);
         } else {
-            // Seed Initial Data (Problem Statement Scenario)
             this.data = {
                 vehicles: [
-                    { id: 'V001', name: 'Van-05', plate: 'FLT-001', capacity: 500, odo: 12500, status: 'available', maintenance: 450, fuel: 800, rev: 3500 },
-                    { id: 'V002', name: 'Truck-Heavy', plate: 'FLT-002', capacity: 3000, odo: 84000, status: 'on_trip', maintenance: 1200, fuel: 3400, rev: 9200 },
-                    { id: 'V003', name: 'City Bike', plate: 'FLT-003', capacity: 30, odo: 1200, status: 'in_shop', maintenance: 50, fuel: 10, rev: 400 }
+                    { id: 'V1', name: 'Ford Transit', plate: 'WF-101', capacity: 1500, odo: 45000, status: 'Active', fuel: 500, maint: 200, rev: 3000 },
+                    { id: 'V2', name: 'Volvo Truck', plate: 'WF-202', capacity: 5000, odo: 120000, status: 'Maintenance', fuel: 1500, maint: 800, rev: 8000 }
                 ],
                 drivers: [
-                    { id: 'D001', name: 'Alex Johnson', licenseExp: '2027-12-01', status: 'available', trips: 45, score: 98, img: 'https://ui-avatars.com/api/?name=Alex+Johnson' },
-                    { id: 'D002', name: 'Sarah Connor', licenseExp: '2023-05-15', status: 'available', trips: 112, score: 85, img: 'https://ui-avatars.com/api/?name=Sarah+Connor' }, // Expired license example
-                    { id: 'D003', name: 'Mike Ross', licenseExp: '2026-08-20', status: 'on_duty', trips: 89, score: 100, img: 'https://ui-avatars.com/api/?name=Mike+Ross' }
+                    { id: 'D1', name: 'John Doe', exp: '2026-05-01', trips: 140, score: 98, status: 'Active' },
+                    { id: 'D2', name: 'Jane Smith', exp: '2022-01-01', trips: 55, score: 80, status: 'Suspended (License)' }
                 ],
                 trips: [
-                    { id: 'TRP-101', vId: 'V002', dId: 'D003', cargo: 2100, dest: 'Warehouse B', status: 'dispatched', cost: 0, rev: 450, date: new Date().toISOString() },
-                    { id: 'TRP-100', vId: 'V001', dId: 'D001', cargo: 300, dest: 'Client Site A', status: 'completed', cost: 45.5, rev: 250, date: new Date(Date.now() - 86400000).toISOString() }
+                    { id: 'TRP-555', vId: 'V1', dId:'D1', status: 'In Progress', cargo: 500 },
+                    { id: 'TRP-556', vId: 'V1', dId:'D1', status: 'Completed', cargo: 1200, fuel: 50, cost: 80 }
                 ],
                 maintenanceLogs: [
-                    { id: 'M001', vId: 'V003', desc: 'Broken chain replacement', date: new Date().toISOString() }
+                    { id: 'LOG-01', vId: 'V2', desc: 'Engine Check', date: '2023-10-25' }
                 ]
             };
             this.saveData();
@@ -94,287 +91,237 @@ const app = {
     },
 
     saveData: function() {
-        localStorage.setItem('fleetFlow_data', JSON.stringify(this.data));
-        this.renderAll(); // Re-render UI on data change (simulating real-time reactivity)
-    },
-
-    // --- Authentication ---
-    login: function() {
-        Swal.fire({ title: 'Authenticating', timer: 800, timerProgressBar: true, showConfirmButton: false }).then(() => {
-            this.authPage.classList.remove('active');
-            this.mainLayout.classList.remove('hidden');
-            this.mainLayout.classList.add('active');
-        });
-    },
-
-    logout: function() {
-        this.mainLayout.classList.add('hidden');
-        this.mainLayout.classList.remove('active');
-        this.authPage.classList.add('active');
-    },
-
-    // --- Routing ---
-    showPage: function(pageId) {
-        // Toggle view
-        this.pages.forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        
-        // Toggle nav
-        this.navItems.forEach(n => n.classList.remove('active'));
-        const activeNav = document.querySelector(`[data-target="${pageId}"]`);
-        if(activeNav) {
-            activeNav.classList.add('active');
-            this.pageTitle.innerText = activeNav.querySelector('span').innerText;
-        }
-        
-        // Close sidebar on mobile
-        document.querySelector('.sidebar').classList.remove('open');
+        localStorage.setItem('fleetFlow_wf_data', JSON.stringify(this.data));
         this.renderAll();
     },
 
-    // --- Core Logic & Rendering ---
+    showPage: function(pageId) {
+        this.pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        
+        this.navItems.forEach(n => n.classList.remove('active'));
+        const activeNav = document.querySelector(`[data-target="${pageId}"]`);
+        if(activeNav) activeNav.classList.add('active');
+        
+        this.renderAll();
+    },
+    
+    openModal: function(id) {
+         document.getElementById(id).classList.remove('hidden');
+    },
+    closeModal: function(id) {
+         document.getElementById(id).classList.add('hidden');
+    },
+
     renderAll: function() {
         this.renderDash();
         this.renderVehicles();
-        this.renderDispatchLists();
+        this.renderDispatch();
+        this.renderMaintenance();
         this.renderFinance();
         this.renderDrivers();
-        this.renderMaintenance();
-    },
-
-    // Utility: Status Badges
-    getBadge: function(status) {
-        const map = {
-            'available': '<span class="status-badge bg-success">Available</span>',
-            'on_trip': '<span class="status-badge bg-warning">On Trip</span>',
-            'on_duty': '<span class="status-badge bg-warning">On Duty</span>',
-            'in_shop': '<span class="status-badge bg-danger">In Shop</span>',
-            'dispatched': '<span class="status-badge bg-primary">Dispatched</span>',
-            'completed': '<span class="status-badge bg-success">Completed</span>'
-        };
-        return map[status] || `<span class="status-badge bg-primary">${status}</span>`;
+        this.renderAnalytics();
     },
 
     renderDash: function() {
-        // KPIs
-        const onTrip = this.data.vehicles.filter(v => v.status === 'on_trip').length;
-        const inShop = this.data.vehicles.filter(v => v.status === 'in_shop').length;
-        const totalV = this.data.vehicles.length;
-        const util = totalV > 0 ? Math.round((onTrip / totalV) * 100) : 0;
+        const active = this.data.vehicles.filter(v => v.status === 'Active').length;
+        const maint = this.data.vehicles.filter(v => v.status === 'Maintenance').length;
         
-        document.getElementById('kpi-active').innerText = onTrip;
-        document.getElementById('kpi-alerts').innerText = inShop;
-        document.getElementById('kpi-utilization').innerText = util + '%';
-        document.getElementById('kpi-pending').innerText = '0'; // placeholder logic
+        document.getElementById('kpi-active').innerText = active;
+        document.getElementById('kpi-alerts').innerText = maint;
+        document.getElementById('kpi-pending').innerText = '1';
 
-        // Recent Trips Table
         const tbody = document.getElementById('recent-trips-tbody');
-        tbody.innerHTML = '';
-        this.data.trips.slice(0).reverse().forEach(t => {
+        tbody.innerHTML = this.data.trips.map(t => {
             const v = this.data.vehicles.find(v => v.id === t.vId);
-            const d = this.data.drivers.find(d => d.id === t.dId);
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${t.id}</strong></td>
-                    <td>${v ? v.name : 'Unknown'}</td>
-                    <td>${d ? d.name : 'Unknown'}</td>
-                    <td>${this.getBadge(t.status)}</td>
-                    <td>${t.cargo} kg</td>
-                </tr>
-            `;
-        });
+            return `<tr>
+                <td>${t.id}</td>
+                <td>${v ? v.name : '-'}</td>
+                <td class="${t.status === 'Completed' ? 'green-text' : ''}">${t.status}</td>
+                <td>--</td>
+            </tr>`;
+        }).join('');
     },
 
     renderVehicles: function() {
         const tbody = document.getElementById('vehicles-tbody');
-        tbody.innerHTML = '';
-        this.data.vehicles.forEach(v => {
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${v.name}</strong></td>
-                    <td>${v.plate}</td>
-                    <td>${v.capacity} kg</td>
-                    <td>${v.odo} km</td>
-                    <td>${this.getBadge(v.status)}</td>
-                    <td><button class="btn-text" onclick="app.retireVehicle('${v.id}')">Retire</button></td>
-                </tr>
-            `;
-        });
-
-        // ROI Table
-        const roiBody = document.getElementById('analytics-roi');
-        if(roiBody) {
-            roiBody.innerHTML = '';
-            let effScore = 0;
-            this.data.vehicles.forEach(v => {
-                const ops = v.maintenance + v.fuel;
-                const roi = ops > 0 ? (((v.rev - ops) / ops) * 100).toFixed(1) : 0;
-                effScore += parseFloat(roi > 100 ? 100 : (roi > 0 ? roi : 0));
-                
-                roiBody.innerHTML += `
-                    <tr><td>${v.name}</td><td class="text-gradient-green">$${v.rev}</td><td class="text-warning">$${ops}</td><td>${roi}%</td></tr>
-                `;
-            });
-            const finalEff = this.data.vehicles.length > 0 ? Math.round(effScore / this.data.vehicles.length) : 0;
-            const efEl = document.getElementById('efficiency-score');
-            if(efEl) efEl.innerText = finalEff + '%';
-        }
+        tbody.innerHTML = this.data.vehicles.map(v => `
+            <tr>
+                <td>${v.plate}</td>
+                <td>${v.name}</td>
+                <td>${v.capacity} kg</td>
+                <td>${v.odo}</td>
+                <td class="${v.status === 'Active' ? 'green-text' : 'red-text'}">${v.status}</td>
+                <td><button class="wireframe-btn">Edit</button></td>
+            </tr>
+        `).join('');
     },
-
-    renderDispatchLists: function() {
-        // Dropdowns
-        const vSelect = document.getElementById('dispatch-vehicle');
-        const dSelect = document.getElementById('dispatch-driver');
+    
+    renderDispatch: function() {
+        const vSel = document.getElementById('dispatch-vehicle');
+        const dSel = document.getElementById('dispatch-driver');
         
-        // Find available options
-        const availV = this.data.vehicles.filter(v => v.status === 'available');
-        const availD = this.data.drivers.filter(d => d.status === 'available');
-
-        vSelect.innerHTML = '<option value="">-- Choose Vehicle --</option>' + availV.map(v => `<option value="${v.id}">${v.name} (Max: ${v.capacity}kg)</option>`).join('');
-        dSelect.innerHTML = '<option value="">-- Choose Driver --</option>' + availD.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        vSel.innerHTML = '<option value="">-- Select --</option>' + this.data.vehicles.filter(v=>v.status==='Active').map(v=>`<option value="${v.id}">${v.name} (${v.capacity}kg)</option>`).join('');
+        dSel.innerHTML = '<option value="">-- Select --</option>' + this.data.drivers.filter(d=>d.status==='Active').map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+        
+        const tbody = document.getElementById('trip-pipeline-tbody');
+        tbody.innerHTML = this.data.trips.map(t => {
+            const v = this.data.vehicles.find(v => v.id === t.vId);
+            const d = this.data.drivers.find(d => d.id === t.dId);
+            return `<tr>
+                <td>${t.id}</td>
+                <td>${v ? v.name : '-'}</td>
+                <td>${d ? d.name : '-'}</td>
+                <td>${t.status}</td>
+            </tr>`;
+        }).join('');
     },
-
+    
+    renderMaintenance: function() {
+         const mSel = document.getElementById('maint-vehicle');
+         mSel.innerHTML = '<option value="">-- Select --</option>' + this.data.vehicles.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+         
+         const tbody = document.getElementById('service-logs-tbody');
+         tbody.innerHTML = this.data.maintenanceLogs.map(m => {
+            const v = this.data.vehicles.find(v => v.id === m.vId);
+            return `<tr>
+                <td>${m.id}</td>
+                <td>${v ? v.name : '-'}</td>
+                <td>${m.desc}</td>
+                <td>${m.date}</td>
+                <td><button class="wireframe-btn">Complete</button></td>
+            </tr>`;
+        }).join('');
+    },
+    
     renderFinance: function() {
         const tbody = document.getElementById('finance-tbody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        
-        let totalCost = 0;
-        let totalFuel = 0;
-
-        const comp = this.data.trips.filter(t => t.status === 'completed');
-        comp.forEach(t => {
+        const completed = this.data.trips.filter(t => t.status === 'Completed');
+        tbody.innerHTML = completed.map(t => {
             const v = this.data.vehicles.find(v => v.id === t.vId);
-            totalCost += t.cost;
-            totalFuel += (t.cost / 1.5); // Mock math
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${t.id}</strong></td>
-                    <td>${v ? v.name : 'Unknown'}</td>
-                    <td>${v ? v.odo : 0}</td>
-                    <td>${(t.cost / 1.5).toFixed(1)} L</td>
-                    <td>$${t.cost.toFixed(2)}</td>
-                </tr>
-            `;
-        });
-
-        document.getElementById('finance-total').innerText = '$' + totalCost.toFixed(2);
-        document.getElementById('finance-fuel').innerText = totalFuel.toFixed(1) + ' L';
+            return `<tr>
+                <td>${t.id}</td>
+                <td>${v ? v.name : '-'}</td>
+                <td>${v ? v.odo + 200 : '-'}</td>
+                <td>${t.fuel || 0} L / $${t.cost || 0}</td>
+            </tr>`;
+        }).join('');
     },
-
+    
     renderDrivers: function() {
-        const grid = document.getElementById('driver-grid');
-        grid.innerHTML = '';
-        
-        this.data.drivers.forEach(d => {
-            const isExp = new Date(d.licenseExp) < new Date();
-            const expStyle = isExp ? 'color: var(--danger); font-weight: bold;' : '';
-            grid.innerHTML += `
-                <div class="glass-card driver-card">
-                    <img src="${d.img}" alt="${d.name}">
-                    <h3>${d.name}</h3>
-                    <p style="${expStyle}">License Exp: ${d.licenseExp} ${isExp ? '<i class="fa-solid fa-triangle-exclamation"></i>' : ''}</p>
-                    <div style="margin-top: 10px;">${this.getBadge(d.status)}</div>
-                    <div class="driver-stats">
-                        <div class="stat"><strong>${d.score}</strong><span>Safety Score</span></div>
-                        <div class="stat"><strong>${d.trips}</strong><span>Trips</span></div>
-                    </div>
-                </div>
-            `;
-        });
+        const tbody = document.getElementById('driver-tbody');
+        tbody.innerHTML = this.data.drivers.map(d => {
+             const isExp = new Date(d.exp) < new Date();
+             return `<tr>
+                <td>${d.name}</td>
+                <td class="${isExp ? 'red-text' : ''}">${d.exp}</td>
+                <td>${d.trips}</td>
+                <td>${d.score}%</td>
+                <td>${isExp ? 'Expired' : 'Valid'}</td>
+                <td class="${d.status.includes('Suspended') ? 'red-text' : 'green-text'}">${d.status}</td>
+            </tr>`;
+        }).join('');
+    },
+    
+    renderAnalytics: function() {
+         document.getElementById('metric-total-trips').innerText = this.data.trips.length;
+         
+         // Mock charts if Chart.js is loaded
+         if(window.Chart && document.getElementById('efficiencyChart')) {
+              // Destroy old ones if exist
+              const canvas1 = document.getElementById('efficiencyChart');
+              const canvas2 = document.getElementById('costRevChart');
+              Chart.getChart(canvas1)?.destroy();
+              Chart.getChart(canvas2)?.destroy();
+              
+              const ctx1 = canvas1.getContext('2d');
+              new Chart(ctx1, {
+                  type: 'line',
+                  data: {
+                      labels: ['W1', 'W2', 'W3', 'W4'],
+                      datasets: [{
+                          label: 'Efficiency',
+                          data: [80, 85, 82, 94],
+                          borderColor: '#2ed573',
+                          tension: 0.1
+                      }]
+                  },
+                  options: { responsive: true, maintainAspectRatio: false }
+              });
+              
+              const ctx2 = canvas2.getContext('2d');
+              new Chart(ctx2, {
+                  type: 'bar',
+                  data: {
+                      labels: ['Vehicle 1', 'Vehicle 2'],
+                      datasets: [{
+                          label: 'Revenue',
+                          data: [3000, 8000],
+                          backgroundColor: '#2ed573'
+                      }, {
+                          label: 'Cost',
+                          data: [700, 2300],
+                          backgroundColor: '#ff4757'
+                      }]
+                  },
+                  options: { responsive: true, maintainAspectRatio: false }
+              });
+         }
     },
 
-    renderMaintenance: function() {
-        const mSelect = document.getElementById('maint-vehicle');
-        if(mSelect) {
-            const availV = this.data.vehicles.filter(v => v.status === 'available');
-            mSelect.innerHTML = '<option value="">-- Select Vehicle --</option>' + availV.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
-        }
-
-        const list = document.getElementById('service-logs-list');
-        if(list) {
-            list.innerHTML = this.data.maintenanceLogs.map(m => {
-                const v = this.data.vehicles.find(v => v.id === m.vId);
-                return `<div style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display:flex; justify-content: space-between; align-items: center;">
-                    <div><i class="fa-solid fa-wrench" style="color:var(--danger); margin-right:10px;"></i> <strong>${v?v.name:'Unknown'}</strong>: ${m.desc}</div>
-                    <button class="btn-text" onclick="app.resolveMaintenance('${m.id}')">Mark Resolved</button>
-                </div>`;
-            }).join('');
-        }
-    },
-
-    // --- Actions & Rules (From Problem Statement) ---
+    // Actions
     createTrip: function() {
         const vId = document.getElementById('dispatch-vehicle').value;
         const dId = document.getElementById('dispatch-driver').value;
         const cargo = parseFloat(document.getElementById('dispatch-cargo').value);
-        const dest = document.getElementById('dispatch-dest').value;
         const errEl = document.getElementById('dispatch-error');
-        const errText = document.getElementById('error-text');
-
         errEl.classList.add('hidden');
 
         const v = this.data.vehicles.find(v => v.id === vId);
-        const d = this.data.drivers.find(d => d.id === dId);
-
-        // Validation Rule 1: Cargo vs Capacity
-        if (cargo > v.capacity) {
-            errText.innerText = `Validation Failed: ${cargo}kg exceeds ${v.name}'s max capacity of ${v.capacity}kg.`;
-            errEl.classList.remove('hidden');
-            return;
-        }
-
-        // Validation Rule 2: Expired License
-        if (new Date(d.licenseExp) < new Date()) {
-            errText.innerText = `Compliance Issue: ${d.name}'s license is expired! Assignment blocked.`;
-            errEl.classList.remove('hidden');
-            return;
-        }
-
-        // Success - Update State
-        v.status = 'on_trip';
-        d.status = 'on_duty';
         
+        if (cargo > v.capacity) {
+            errEl.innerText = `Error: Cargo (${cargo}kg) exceeds vehicle capacity (${v.capacity}kg).`;
+            errEl.classList.remove('hidden');
+            return;
+        }
+
         this.data.trips.push({
-            id: 'TRP-' + Math.floor(Math.random() * 900 + 100),
-            vId: v.id, dId: d.id, cargo, dest, status: 'dispatched', cost: 0, rev: 0, date: new Date().toISOString()
+            id: 'TRP-' + Math.floor(Math.random()*900+100),
+            vId, dId, status: 'Dispatched', cargo
         });
 
         this.saveData();
-        Swal.fire('Dispatched!', 'Trip created and states automatically updated.', 'success');
         document.getElementById('create-trip-form').reset();
     },
-
-    logMaintenance: function() {
-        const vId = document.getElementById('maint-vehicle').value;
-        const desc = document.getElementById('maint-desc').value;
-
-        const v = this.data.vehicles.find(v => v.id === vId);
-        if(!v) return;
-
-        // Auto Logic: Service changes status to In Shop, hides from Dispatch
-        v.status = 'in_shop';
-        this.data.maintenanceLogs.push({ id: 'M' + Date.now(), vId: v.id, desc, date: new Date().toISOString() });
-
-        this.saveData();
-        Swal.fire('Logged', `${v.name} status updated to "In Shop"`, 'warning');
-        document.getElementById('maintenance-form').reset();
+    
+    addVehicle: function() {
+         const plate = document.getElementById('v-plate').value;
+         const cap = document.getElementById('v-cap').value;
+         const mod = document.getElementById('v-model').value;
+         
+         this.data.vehicles.push({
+              id: 'V' + Date.now(),
+              name: mod, plate: plate, capacity: cap, odo: 0, status: 'Active', fuel: 0, maint: 0, rev: 0
+         });
+         this.saveData();
+         this.closeModal('add-vehicle-modal');
+         document.getElementById('form-add-vehicle').reset();
     },
-
-    resolveMaintenance: function(mId) {
-        const idx = this.data.maintenanceLogs.findIndex(m => m.id === mId);
-        if(idx > -1) {
-            const vId = this.data.maintenanceLogs[idx].vId;
-            const v = this.data.vehicles.find(v => v.id === vId);
-            if(v) v.status = 'available'; // Release vehicle
-            this.data.maintenanceLogs.splice(idx, 1);
-            this.saveData();
-            Swal.fire('Resolved', 'Vehicle returned to Dispatch pool', 'success');
-        }
+    
+    logService: function() {
+         const vId = document.getElementById('maint-vehicle').value;
+         const desc = document.getElementById('maint-desc').value;
+         
+         const v = this.data.vehicles.find(v => v.id === vId);
+         if(v) v.status = 'Maintenance';
+         
+         this.data.maintenanceLogs.push({id: 'LOG-'+Date.now(), vId, desc, date: new Date().toISOString().split('T')[0]});
+         this.saveData();
+         this.closeModal('log-service-modal');
+         document.getElementById('form-log-service').reset();
     }
 };
 
-// Start App
 document.addEventListener('DOMContentLoaded', () => {
     app.init();
 });

@@ -1,422 +1,344 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FleetFlow | Modular Logistics System</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <!-- App Container -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <div id="app-container" class="app-container">
-      <!-- Authentication Page (Page 1) -->
-      <section id="auth-page" class="page-section active flex-center">
-        <div class="glass-card auth-card">
-          <div class="brand">
-            <i class="fa-solid fa-truck-fast gradient-text"></i>
-            <h1 class="gradient-text">FleetFlow</h1>
-          </div>
-          <p class="subtitle">Logistics Management System</p>
-
-          <form id="login-form">
-            <div class="input-group">
-              <i class="fa-solid fa-envelope"></i>
-              <input
-                type="email"
-                id="email"
-                placeholder="Email Address"
-                required
-                value="admin@fleetflow.com"
-              />
-            </div>
-            <div class="input-group">
-              <i class="fa-solid fa-lock"></i>
-              <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                required
-                value="password123"
-              />
-            </div>
-            <div class="form-options">
-              <label class="remember-me">
-                <input type="checkbox" /> Remember me
-              </label>
-              <a href="#" class="forgot-pwd">Forgot Password?</a>
-            </div>
-            <button type="submit" class="btn-primary w-full glow-btn">
-              <span>Sign In</span>
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </form>
-        </div>
-      </section>
-
-      <!-- Main Dashboard Wrapper -->
-      <div id="main-layout" class="main-layout hidden">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar glass-panel">
-          <div class="brand">
-            <i class="fa-solid fa-truck-fast gradient-text"></i>
-            <h2>FleetFlow</h2>
-          </div>
-
-          <nav class="nav-menu">
-            <button class="nav-item active" data-target="dashboard">
-              <i class="fa-solid fa-chart-pie"></i>
-              <span>Command Center</span>
-            </button>
-            <button class="nav-item" data-target="vehicles">
-              <i class="fa-solid fa-car-side"></i>
-              <span>Registry</span>
-            </button>
-            <button class="nav-item" data-target="dispatch">
-              <i class="fa-solid fa-route"></i>
-              <span>Dispatcher</span>
-            </button>
-            <button class="nav-item" data-target="maintenance">
-              <i class="fa-solid fa-wrench"></i>
-              <span>Maintenance</span>
-            </button>
-            <button class="nav-item" data-target="finance">
-              <i class="fa-solid fa-file-invoice-dollar"></i>
-              <span>Finance & Logs</span>
-            </button>
-            <button class="nav-item" data-target="drivers">
-              <i class="fa-solid fa-id-card"></i>
-              <span>Drivers profiles</span>
-            </button>
-            <button class="nav-item" data-target="analytics">
-              <i class="fa-solid fa-chart-line"></i>
-              <span>Analytics</span>
-            </button>
-          </nav>
-
-          <div class="user-profile">
-            <img
-              src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff"
-              alt="User"
-            />
-            <div class="user-info">
-              <p class="name">Admin User</p>
-              <p class="role">Fleet Manager</p>
-            </div>
-            <button id="logout-btn" class="logout-btn">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
-          </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="content-area">
-          <!-- Navbar -->
-          <header class="top-nav glass-panel">
-            <div class="mobile-menu-toggle">
-              <i class="fa-solid fa-bars"></i>
-            </div>
-            <h2 id="page-title">Command Center</h2>
-            <div class="nav-actions">
-              <button class="icon-btn">
-                <i class="fa-solid fa-bell"></i><span class="badge">3</span>
-              </button>
-              <button
-                class="btn-primary new-trip-btn"
-                onclick="app.showPage('dispatch')"
-              >
-                <i class="fa-solid fa-plus"></i> New Trip
-              </button>
-            </div>
-          </header>
-
-          <!-- Page 2: Command Center -->
-          <section id="dashboard" class="content-section active">
-            <div class="kpi-grid">
-              <div class="kpi-card glass-panel">
-                <div class="kpi-icon blue">
-                  <i class="fa-solid fa-truck"></i>
-                </div>
-                <div class="kpi-data">
-                  <h3>Active Fleet</h3>
-                  <p class="value" id="kpi-active">0</p>
-                  <p class="trend positive">
-                    <i class="fa-solid fa-arrow-up"></i> On Trip
-                  </p>
-                </div>
-              </div>
-              <div class="kpi-card glass-panel">
-                <div class="kpi-icon red">
-                  <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <div class="kpi-data">
-                  <h3>Alerts</h3>
-                  <p class="value" id="kpi-alerts">0</p>
-                  <p class="trend negative">
-                    <i class="fa-solid fa-wrench"></i> In Shop
-                  </p>
-                </div>
-              </div>
-              <div class="kpi-card glass-panel">
-                <div class="kpi-icon green">
-                  <i class="fa-solid fa-percent"></i>
-                </div>
-                <div class="kpi-data">
-                  <h3>Utilization</h3>
-                  <p class="value" id="kpi-utilization">0%</p>
-                  <p class="trend neutral">Assigned vs Idle</p>
-                </div>
-              </div>
-              <div class="kpi-card glass-panel">
-                <div class="kpi-icon purple">
-                  <i class="fa-solid fa-box-open"></i>
-                </div>
-                <div class="kpi-data">
-                  <h3>Pending</h3>
-                  <p class="value" id="kpi-pending">0</p>
-                  <p class="trend negative">Unassigned Cargo</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="dashboard-tables">
-              <div class="glass-panel table-container">
-                <div class="table-header">
-                  <h3>Recent Dispatch Trips</h3>
-                  <button class="btn-text">View All</button>
-                </div>
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Vehicle</th>
-                      <th>Driver</th>
-                      <th>Status</th>
-                      <th>Cargo</th>
-                    </tr>
-                  </thead>
-                  <tbody id="recent-trips-tbody">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
-
-          <!-- Page 3: Registry -->
-          <section id="vehicles" class="content-section">
-            <div class="section-actions">
-              <div class="search-box">
-                <i class="fa-solid fa-search"></i>
-                <input
-                  type="text"
-                  placeholder="Search vehicles... (e.g. Van-05)"
-                />
-              </div>
-              <button class="btn-primary">
-                <i class="fa-solid fa-plus"></i> Add Vehicle
-              </button>
-            </div>
-            <div class="glass-panel table-container">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Model/Name</th>
-                    <th>License Plate</th>
-                    <th>Max Capacity (kg)</th>
-                    <th>Odometer</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="vehicles-tbody">
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Page 4: Dispatcher -->
-          <section id="dispatch" class="content-section">
-            <div class="split-layout">
-              <div class="glass-panel form-container">
-                <h3>Create New Trip Workflow</h3>
-                <form id="create-trip-form">
-                  <div class="form-group row">
-                    <div class="col">
-                      <label>Select Available Vehicle</label>
-                      <select id="dispatch-vehicle" required>
-                        <option value="">-- Choose Vehicle --</option>
-                      </select>
+        
+        <!-- Authentication Page (Page 1) -->
+        <section id="auth-page" class="page-section flex-center active">
+            <div class="wireframe-card text-center" style="max-width: 400px; margin: 0 auto; margin-top: 10vh;">
+                <div style="margin-bottom: 20px;">
+                    <div style="width: 60px; height: 60px; border: 2px solid var(--accent); border-radius: 50%; display: inline-block; position: relative;">
+                        <span style="position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); color: var(--accent); font-weight:bold; font-size:24px;">F</span>
                     </div>
-                    <div class="col">
-                      <label>Select Available Driver</label>
-                      <select id="dispatch-driver" required>
-                        <option value="">-- Choose Driver --</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <div class="col">
-                      <label>Cargo Weight (kg)</label>
-                      <input
-                        type="number"
-                        id="dispatch-cargo"
-                        required
-                        placeholder="e.g. 450"
-                      />
-                    </div>
-                    <div class="col">
-                      <label>Destination</label>
-                      <input
-                        type="text"
-                        id="dispatch-dest"
-                        required
-                        placeholder="Point B"
-                      />
-                    </div>
-                  </div>
-                  <div id="dispatch-error" class="error-msg hidden">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span id="error-text">Validation failed</span>
-                  </div>
-                  <button type="submit" class="btn-primary w-full">
-                    Dispatch Trip
-                  </button>
+                </div>
+                <h2>Login</h2>
+                <form id="login-form">
+                    <input type="text" placeholder="Username" required value="admin" class="wireframe-input block full-width mb-15">
+                    <input type="password" placeholder="Password" required value="password" class="wireframe-input block full-width mb-15">
+                    <button type="submit" class="wireframe-btn btn-primary full-width mb-15">Login</button>
+                    <a href="#" style="color:var(--text); text-decoration: underline; font-size: 12px;">Forgot Password</a>
                 </form>
-              </div>
+            </div>
+            
+            <div class="wireframe-card text-center" style="max-width: 400px; margin: 0 auto; margin-top: 10px;">
+                <h3 style="font-size: 14px; margin-bottom: 15px;">Welcome to FleetFlow<br>Modular Fleet & Logistics System</h3>
+                <input type="text" placeholder="Full Name" class="wireframe-input block full-width mb-10">
+                <input type="email" placeholder="Email" class="wireframe-input block full-width mb-10">
+                <input type="password" placeholder="Password" class="wireframe-input block full-width mb-15">
+                <button class="wireframe-btn btn-primary full-width">Register</button>
+            </div>
+        </section>
 
-              <div class="glass-panel list-container">
-                <h3>Trip Lifecycle Pipeline</h3>
-                <div class="kanban-like-board" id="trip-pipeline">
-                  <!-- Populated by JS -->
+        <!-- Main Dashboard Layout -->
+        <div id="main-layout" class="main-layout hidden">
+            
+            <aside class="wireframe-sidebar">
+                <nav class="nav-menu">
+                    <button class="nav-item active" data-target="dashboard">Dashboard</button>
+                    <button class="nav-item" data-target="vehicles">Vehicle Registry</button>
+                    <button class="nav-item" data-target="dispatch">Trip Dispatcher</button>
+                    <button class="nav-item" data-target="maintenance">Maintenance</button>
+                    <button class="nav-item" data-target="finance">Completed Trips</button>
+                    <button class="nav-item" data-target="drivers">Driver Performance</button>
+                    <button class="nav-item" data-target="analytics">Analytics</button>
+                </nav>
+            </aside>
+
+            <main class="content-area">
+                <header class="wireframe-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div class="user-profile flex-row align-center">
+                            <i class="fa-solid fa-user-circle" style="font-size: 24px;"></i>
+                        </div>
+                        <h2 style="position: absolute; left: 50%; transform: translateX(-50%); font-weight: normal; letter-spacing: 2px;">Fleet Flow</h2>
+                        <div>
+                            <input type="text" class="wireframe-input" placeholder="Search" style="width: 150px; display: inline-block; margin-right: 15px;">
+                            <button id="logout-btn" class="wireframe-btn btn-danger">Logout</button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="page-content-wrapper">
+                    <!-- Page 2: Dashboard -->
+                    <section id="dashboard" class="content-section active">
+                        <div class="section-top-bar">
+                            <input type="text" class="wireframe-input" placeholder="Search..." style="width: 250px;">
+                            <div>
+                                <select class="wireframe-input display-inline">
+                                    <option>Filter By</option>
+                                    <option>Vehicle Type</option>
+                                </select>
+                                <button class="wireframe-btn btn-primary ml-10">Apply Filters</button>
+                            </div>
+                        </div>
+
+                        <div class="kpi-grid">
+                            <div class="wireframe-kpi" style="border-color: var(--success);">
+                                <h3>Active Fleet</h3>
+                                <div class="value green-text text-center" id="kpi-active">-</div>
+                            </div>
+                            <div class="wireframe-kpi" style="border-color: var(--danger);">
+                                <h3>Maintenance Alerts</h3>
+                                <div class="value text-center red-text" id="kpi-alerts">-</div>
+                            </div>
+                            <div class="wireframe-kpi" style="border-color: var(--success);">
+                                <h3>Pending Cargo</h3>
+                                <div class="value green-text text-center" id="kpi-pending">-</div>
+                            </div>
+                        </div>
+
+                        <div class="wireframe-table-wrapper mt-20">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Trip</th>
+                                        <th>Vehicle</th>
+                                        <th>Status</th>
+                                        <th>Driver</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-trips-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Page 3: Registry -->
+                    <section id="vehicles" class="content-section">
+                        <div class="section-top-bar">
+                            <input type="text" class="wireframe-input" placeholder="Search vehicle..." style="width: 250px;">
+                            <button class="wireframe-btn btn-primary" onclick="app.openModal('add-vehicle-modal')">Add Vehicle</button>
+                        </div>
+
+                        <div class="wireframe-table-wrapper mt-20">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>License Plate</th>
+                                        <th>Model</th>
+                                        <th>Max Capacity</th>
+                                        <th>Odometer</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vehicles-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Page 4: Dispatcher -->
+                    <section id="dispatch" class="content-section">
+                        <div class="section-top-bar">
+                            <input type="text" class="wireframe-input" placeholder="Search trip..." style="width: 250px;">
+                        </div>
+
+                        <div class="wireframe-table-wrapper mt-20 mb-30">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Trip Reference</th>
+                                        <th>Vehicle</th>
+                                        <th>Driver</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trip-pipeline-tbody"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="wireframe-card">
+                            <h3 class="card-title mb-15">Assign New Trip</h3>
+                            <form id="create-trip-form">
+                                <div class="form-row">
+                                    <label>Cargo Weight (kg):</label>
+                                    <input type="number" id="dispatch-cargo" class="wireframe-input full-width" required>
+                                </div>
+                                <div class="form-row">
+                                    <label>Select Driver:</label>
+                                    <select id="dispatch-driver" class="wireframe-input full-width" required></select>
+                                </div>
+                                <div class="form-row">
+                                    <label>Select Vehicle:</label>
+                                    <select id="dispatch-vehicle" class="wireframe-input full-width" required></select>
+                                </div>
+                                <div class="form-row">
+                                    <label>Destination:</label>
+                                    <input type="text" id="dispatch-dest" class="wireframe-input full-width" required>
+                                </div>
+                                 <div id="dispatch-error" class="hidden" style="color:var(--danger); margin-bottom:10px; font-size:14px;"></div>
+                                <button type="submit" class="wireframe-btn btn-primary">Confirm & Dispatch Trip</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Page 5: Maintenance -->
+                    <section id="maintenance" class="content-section">
+                        <div class="section-top-bar">
+                            <input type="text" class="wireframe-input" placeholder="Search log..." style="width: 250px;">
+                            <button class="wireframe-btn btn-primary" onclick="app.openModal('log-service-modal')">Log Service</button>
+                        </div>
+                        
+                        <div class="wireframe-table-wrapper mt-20">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Log ID</th>
+                                        <th>Vehicle</th>
+                                        <th>Service Desc</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="service-logs-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Page 6: Finance -->
+                    <section id="finance" class="content-section">
+                        <div class="section-top-bar">
+                            <input type="text" class="wireframe-input" placeholder="Search..." style="width: 250px;">
+                            <button class="wireframe-btn btn-primary" onclick="app.openModal('add-expense-modal')">Add Expense</button>
+                        </div>
+
+                        <div class="wireframe-table-wrapper mt-20">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Trip ID</th>
+                                        <th>Vehicle</th>
+                                        <th>Final Odometer</th>
+                                        <th>Fuel/Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="finance-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Page 7: Drivers -->
+                    <section id="drivers" class="content-section">
+                        <div class="wireframe-table-wrapper">
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>License Expire</th>
+                                        <th>Trips</th>
+                                        <th>Safety Score</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="driver-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Page 8: Analytics -->
+                    <section id="analytics" class="content-section">
+                        <div class="kpi-grid mb-20">
+                            <div class="wireframe-kpi text-center" style="border-color: var(--success)">
+                                <h3>Total Fleet Trips</h3>
+                                <div class="value green-text text-center"><span id="metric-total-trips">0</span></div>
+                            </div>
+                            <div class="wireframe-kpi text-center" style="border-color: var(--success)">
+                                <h3>Fleet ROI</h3>
+                                <div class="value green-text text-center"><span id="metric-roi">0%</span></div>
+                            </div>
+                        </div>
+
+                        <div class="split-layout" style="margin-bottom: 20px; gap: 20px;">
+                            <div class="wireframe-card" style="flex:1;">
+                                <h4 class="text-center" style="margin-bottom: 10px; font-weight:normal">Fleet Efficiency Trend</h4>
+                                <canvas id="efficiencyChart" style="width: 100%; height: 200px;"></canvas>
+                            </div>
+                            <div class="wireframe-card" style="flex:1;">
+                                <h4 class="text-center" style="margin-bottom: 10px; font-weight:normal">Cost vs Revenue</h4>
+                                <canvas id="costRevChart" style="width: 100%; height: 200px;"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="wireframe-table-wrapper">
+                            <div style="background:var(--bg); border-bottom: 1px solid var(--border); padding: 5px; text-align: center;">
+                                Financial Summary per Month
+                            </div>
+                            <table class="wireframe-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Revenue</th>
+                                        <th>Op Cost</th>
+                                        <th>Net Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthly-summary-tbody"></tbody>
+                            </table>
+                        </div>
+                    </section>
                 </div>
-              </div>
-            </div>
-          </section>
+            </main>
+        </div>
 
-          <!-- Page 5: Maintenance -->
-          <section id="maintenance" class="content-section">
-            <div class="glass-panel form-container">
-              <h3>Log Service Request</h3>
-              <p class="subtitle text-warning">
-                Logging service automatically updates status to "In Shop"
-              </p>
-              <form id="maintenance-form" class="maintenance-form flex-row">
-                <select id="maint-vehicle" required>
-                  <option value="">-- Select Vehicle --</option>
-                </select>
-                <input
-                  type="text"
-                  id="maint-desc"
-                  required
-                  placeholder="Service Description (e.g. Oil Change)"
-                />
-                <button type="submit" class="btn-warning">Log Service</button>
-              </form>
+        <!-- Add Vehicle Modal -->
+        <div id="add-vehicle-modal" class="modal-overlay hidden">
+            <div class="wireframe-modal">
+                <h3 class="modal-title">Add Vehicle</h3>
+                <form id="form-add-vehicle">
+                    <div class="form-row"><label>License Plate:</label><input type="text" id="v-plate" required class="wireframe-input full-width"></div>
+                    <div class="form-row"><label>Max Capacity:</label><input type="number" id="v-cap" required class="wireframe-input full-width"></div>
+                    <div class="form-row"><label>Model Description:</label><input type="text" id="v-model" required class="wireframe-input full-width"></div>
+                    <div class="modal-actions" style="justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="wireframe-btn btn-danger" onclick="app.closeModal('add-vehicle-modal')">Cancel</button>
+                        <button type="submit" class="wireframe-btn btn-primary">Save</button>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <div class="glass-panel mt-4 table-container">
-              <h3>Service Logs Active</h3>
-              <div id="service-logs-list" class="service-list"></div>
+        <!-- Log Service Modal -->
+        <div id="log-service-modal" class="modal-overlay hidden">
+            <div class="wireframe-modal">
+                <h3 class="modal-title">Log Service</h3>
+                <form id="form-log-service">
+                    <div class="form-row">
+                        <label>Vehicle ID:</label>
+                        <select id="maint-vehicle" class="wireframe-input full-width" required></select>
+                    </div>
+                    <div class="form-row"><label>Description:</label><input type="text" id="maint-desc" required class="wireframe-input full-width"></div>
+                    <div class="modal-actions" style="justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="wireframe-btn btn-danger" onclick="app.closeModal('log-service-modal')">Cancel</button>
+                        <button type="submit" class="wireframe-btn btn-primary">Save</button>
+                    </div>
+                </form>
             </div>
-          </section>
+        </div>
 
-          <!-- Page 6: Finance & Expense Logging -->
-          <section id="finance" class="content-section">
-            <div class="kpi-grid mb-4">
-              <div class="kpi-card glass-panel dark-bg">
-                <h3>Total Fleet Expenses</h3>
-                <p class="value text-gradient-green" id="finance-total">
-                  $0.00
-                </p>
-              </div>
-              <div class="kpi-card glass-panel dark-bg">
-                <h3>Fuel Consumed</h3>
-                <p class="value text-gradient-blue" id="finance-fuel">0 L</p>
-              </div>
+        <!-- Add Expense Modal -->
+        <div id="add-expense-modal" class="modal-overlay hidden">
+            <div class="wireframe-modal">
+                <h3 class="modal-title">Add Expense</h3>
+                <form id="form-add-expense">
+                    <div class="form-row"><label>Completed Trip / Vehicle:</label><input type="text" class="wireframe-input full-width"></div>
+                    <div class="form-row"><label>Cost:</label><input type="number" class="wireframe-input full-width"></div>
+                    <div class="modal-actions" style="justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="wireframe-btn btn-danger" onclick="app.closeModal('add-expense-modal')">Cancel</button>
+                        <button type="submit" class="wireframe-btn btn-primary">Save</button>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <div class="glass-panel table-container">
-              <div class="table-header">
-                <h3>Completed Trips & Finances</h3>
-                <button
-                  class="btn-primary"
-                  onclick="alert('Exporting to CSV...')"
-                >
-                  <i class="fa-solid fa-download"></i> CSV
-                </button>
-              </div>
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Trip</th>
-                    <th>Vehicle</th>
-                    <th>Final Odometer</th>
-                    <th>Fuel (Liters)</th>
-                    <th>Total Cost ($)</th>
-                  </tr>
-                </thead>
-                <tbody id="finance-tbody">
-                  <!-- Populated by JS -->
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Page 7: Drivers Profile -->
-          <section id="drivers" class="content-section">
-            <div class="driver-grid" id="driver-grid">
-              <!-- Populated by JS (Driver Cards) -->
-            </div>
-          </section>
-
-          <!-- Page 8: Analytics -->
-          <section id="analytics" class="content-section">
-            <div class="analytics-grid">
-              <div class="glass-panel col-span-2">
-                <h3>Fleet Return on Investment (ROI)</h3>
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Vehicle</th>
-                      <th>Revenue</th>
-                      <th>Total Ops Cost</th>
-                      <th>ROI %</th>
-                    </tr>
-                  </thead>
-                  <tbody id="analytics-roi"></tbody>
-                </table>
-              </div>
-
-              <div class="glass-panel flex-center flex-col">
-                <h3>Overall Efficiency</h3>
-                <div class="circle-chart">
-                  <span id="efficiency-score">94%</span>
-                </div>
-                <p class="mt-2 text-muted">Fleet Operational Health</p>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
     </div>
-
-    <!-- Scripts -->
-    <!-- SweetAlert for nice popups -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script src="app.js"></script>
-  </body>
+</body>
 </html>
